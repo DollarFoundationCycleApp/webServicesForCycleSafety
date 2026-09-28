@@ -1,0 +1,183 @@
+// Spider Cycle protobuff v0.2.0, 2026-09-27
+
+syntax = "proto3";
+
+package CycleSafety.Server;
+
+// Message sent from the Mobile Application to the Server.
+message AppToServer {
+  oneof payload {
+    SubmitIncidentRequest submit_incident_request = 1;
+    UserAuthRequest user_auth_request = 2;
+  }
+}
+
+// Message sent from the Server to the Mobile Application.
+message ServerToApp {
+  oneof payload {
+    SubmitIncidentResponse submit_incident_response = 1;
+    UserAuthResponse user_auth_response = 2;
+    ServerErrorResponse error_response = 3;
+  }
+}
+
+// Message sent from the Web Front to the Server.
+message WebToServer {
+  oneof payload {
+    UFetchIncidentsRequest fetch_incidents_request = 1;
+    UserAuthRequest user_auth_request = 2;
+    HeatmapDataRequest heatmap_data_request = 3;
+    FetchRepeatOffendersRequest fetch_repeat_offenders_request = 4;
+    FetchOffenderHistoryRequest fetch_offender_history_request = 5;
+  }
+}
+
+// Message sent from the Server to the Web Front.
+message ServerToWeb {
+  oneof payload {
+    FetchIncidentsResponse fetch_incidents_response = 1;
+    UserAuthResponse user_auth_response = 2;
+    HeatmapDataResponse heatmap_data_response = 3;
+    ServerErrorResponse error_response = 4;
+    FetchRepeatOffendersResponse fetch_repeat_offenders_response = 5;
+    FetchOffenderHistoryResponse fetch_offender_history_response = 6;
+  }
+}
+
+// Transmitted when an end-user submits an incident report to the web service.
+message SubmitIncidentRequest {
+  string user_id = 1;                       // ID of the reporting user
+  Incident incident = 2;                    // Incident payload
+  repeated IncidentPhoto photos = 3;        // Image assets linked to the event
+  OffenderVehicle vehicle_info = 4;         // Optional driver/vehicle report details
+}
+
+message SubmitIncidentResponse {
+  bool success = 1;
+  uint64 server_incident_id = 2;            // Server-assigned tracking ID
+  string message = 3;
+  uint64 timestamp_ms = 4;
+}
+
+// Full Incident payload merging embedded BLE data and phone sensor data.
+message Incident {
+  uint32 device_event_id = 1;               // Original event_id from embedded board
+  uint64 timestamp_ms = 2;                  // Incident timestamp (UTC)
+  Location location = 3;                    // GPS coordinates from mobile app
+  uint32 distance_cm = 4;                   // Distance to object from embedded sensor (Could be removed)
+  uint32 time_offset_ms = 5;                // Sensor offset time in ms (Could be removed)
+  bool is_anonymized = 6;                   // Flag denoting sensitive info stripping
+}
+
+// Incident image asset details.
+message IncidentPhoto {
+  uint32 image_index = 1;                   // Zero-based index within event
+  string format = 2;                        // e.g., "JPEG", "PNG"
+  bytes image_data = 3;                     // Reassembled binary image payload
+  bool contains_sensitive_data = 4;         // Flagged if pending anonymization
+}
+
+// Driver/Vehicle tracking metadata for repeat offender analytics.
+message OffenderVehicle {
+  string license_plate = 1;                 // Raw or normalized license plate string
+  string state_or_region = 2;               // Vehicle jurisdiction
+  string vehicle_make = 3;
+  string vehicle_model = 4;
+  string vehicle_color = 5;
+}
+
+message Location {
+  double latitude = 1;
+  double longitude = 2;
+  float accuracy_meters = 3;
+}
+
+message FetchIncidentsRequest {
+  uint64 user_id = 1;
+  uint32 limit = 2;
+  uint32 offset = 3;
+  bool include_anonymized_only = 4;        // Enforce privacy filters
+}
+
+message FetchIncidentsResponse {
+  repeated Incident incidents = 1;
+  uint32 total_count = 2;
+}
+
+message HeatmapDataRequest {
+  double min_latitude = 1;
+  double max_latitude = 2;
+  double min_longitude = 3;
+  double max_longitude = 4;
+  uint64 start_timestamp_ms = 5;
+  uint64 end_timestamp_ms = 6;
+}
+
+message HeatmapPoint {
+  double latitude = 1;
+  double longitude = 2;
+  uint32 weight = 3;                        // Aggregated density/severity score
+}
+
+message HeatmapDataResponse {
+  repeated HeatmapPoint points = 1;
+}
+
+// Request top repeat offenders (e.g., for Admin dashboard analytics view)
+message FetchRepeatOffendersRequest {
+  uint32 min_incident_count = 1;            // Filter for drivers with >= N reported incidents
+  uint32 limit = 2;                         // Number of records to return
+  uint32 offset = 3;                        // Pagination offset
+  string state_or_region_filter = 4;        // Optional filter by state/jurisdiction
+}
+
+// Response containing a ranked list of repeat offenders
+message FetchRepeatOffendersResponse {
+  repeated RepeatOffenderSummary offenders = 1;
+  uint32 total_count = 2;
+}
+
+// Aggregated metrics for a single offending vehicle
+message RepeatOffenderSummary {
+  string license_plate = 1;                 // License plate identifier
+  string state_or_region = 2;               // Jurisdiction
+  uint32 total_incidents = 3;               // Total reported incidents across all users
+  uint64 first_seen_timestamp_ms = 4;       // UTC timestamp of first reported incident
+  uint64 last_seen_timestamp_ms = 5;        // UTC timestamp of most recent incident
+  string vehicle_make = 6;
+  string vehicle_model = 7;
+  string vehicle_color = 8;
+}
+
+// Request detailed incident timeline for a specific repeat offender
+message FetchOffenderHistoryRequest {
+  string license_plate = 1;
+  string state_or_region = 2;
+  uint32 limit = 3;
+  uint32 offset = 4;
+}
+
+// Response with specific incident records attached to a single license plate
+message FetchOffenderHistoryResponse {
+  RepeatOffenderSummary offender_info = 1;
+  repeated Incident incidents = 2;          // Associated incidents (geolocations, timestamps)
+}
+
+// User authentication related requests
+
+message UserAuthRequest {
+  string username_or_email = 1;
+  string auth_token_or_hash = 2;            // Secure auth token/credential
+}
+
+message UserAuthResponse {
+  bool authenticated = 1;
+  string user_id = 2;
+  string session_token = 3;
+  bool is_admin = 4;                        // Set true for Admin accounts
+}
+
+message ServerErrorResponse {
+  uint32 error_code = 1;
+  string error_message = 2;
+}
