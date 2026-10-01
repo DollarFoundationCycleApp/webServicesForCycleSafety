@@ -1,6 +1,8 @@
 package Server;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -58,8 +60,24 @@ public class ServerStart {
 
 
     private static void processConnection(Socket clientSocket, int clientID) throws IOException {
-        // Implement the logic to handle the client connection here
-        // For example, you can read from and write to the clientSocket's input and output streams
+        try (InputStream in = clientSocket.getInputStream();
+             OutputStream out = clientSocket.getOutputStream()) {
+
+            int type = in.read();
+            if (type == 1) {
+                AppToServerHandler.handleAppToServer(in, out, clientID);
+            } else if (type == 2) {
+                WebToServerHandler.handleWebToServer(in, out, clientID);
+            } else {
+                System.err.println("Unknown connection type from client " + clientID);
+            }
+        } catch (IOException e) {
+            System.err.println("Error processing connection from client " + clientID + ": " + e.getMessage());
+        } finally {
+            if (clientSocket != null && !clientSocket.isClosed()) {
+                clientSocket.close();
+            }
+        }
     }
 
 
