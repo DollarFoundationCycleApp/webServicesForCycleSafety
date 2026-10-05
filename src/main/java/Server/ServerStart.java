@@ -7,25 +7,46 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class ServerStart {
-    private static final int DEFAULT_PORT = 8080;
+    private static final int DEFAULT_HTTP_PORT = 8080;
+    private static final int DEFAULT_PROTOBUF_PORT = 9090;
 
 
     public static void main(String[] args) {
-        int port = DEFAULT_PORT;
+        int httpPort = DEFAULT_HTTP_PORT;
+        int protobufPort = DEFAULT_PROTOBUF_PORT;
         
         for (int i = 0; i < args.length; i++) {
-            if (args[i].equals("--port") && i + 1 < args.length) {
+            if ((args[i].equals("--http-port") || args[i].equals("--port")) && i + 1 < args.length) {
                 try {
-                    port = Integer.parseInt(args[i + 1]);
+                    httpPort = Integer.parseInt(args[i + 1]);
                 } catch (NumberFormatException e) {
-                    System.err.println("Invalid port number. Using default port " + DEFAULT_PORT);
+                    System.err.println("Invalid HTTP port number. Using default port " + DEFAULT_HTTP_PORT);
+                }
+            } else if (args[i].equals("--protobuf-port") && i + 1 < args.length) {
+                try {
+                    protobufPort = Integer.parseInt(args[i + 1]);
+                } catch (NumberFormatException e) {
+                    System.err.println("Invalid protobuf port number. Using default port " + DEFAULT_PROTOBUF_PORT);
                 }
             }
         }
 
+        try {
+            WebHttpServer.start(httpPort);
+            System.out.println("HTTP web server started on port " + httpPort);
+            System.out.println("Open http://localhost:" + httpPort + "/login");
+        } catch (IOException e) {
+            System.err.println("Error starting HTTP web server: " + e.getMessage());
+            return;
+        }
+
+        startProtobufSocketServer(protobufPort);
+    }
+
+    private static void startProtobufSocketServer(int port) {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
-            System.out.println("Server started on port " + port);
-            System.out.println("Waiting for clients to connect...");
+            System.out.println("Protobuf socket server started on port " + port);
+            System.out.println("Waiting for protobuf clients to connect...");
 
             int clientID = 0;
             while (true) {
@@ -54,7 +75,7 @@ public class ServerStart {
                 clientThread.start();
             }
         } catch (IOException e) {
-            System.err.println("Error starting server: " + e.getMessage());
+            System.err.println("Error starting protobuf socket server: " + e.getMessage());
         }
     }
 

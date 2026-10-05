@@ -2,8 +2,8 @@ package Server;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Collections;
 
-import CycleSafety.Server.SCPBV020.AppToServer;
 import CycleSafety.Server.SCPBV020.FetchIncidentsRequest;
 import CycleSafety.Server.SCPBV020.FetchIncidentsResponse;
 import CycleSafety.Server.SCPBV020.FetchOffenderHistoryRequest;
@@ -14,9 +14,7 @@ import CycleSafety.Server.SCPBV020.HeatmapDataRequest;
 import CycleSafety.Server.SCPBV020.HeatmapDataResponse;
 import CycleSafety.Server.SCPBV020.RepeatOffenderSummary;
 import CycleSafety.Server.SCPBV020.ServerErrorResponse;
-import CycleSafety.Server.SCPBV020.ServerToApp;
 import CycleSafety.Server.SCPBV020.ServerToWeb;
-import CycleSafety.Server.SCPBV020.SubmitIncidentRequest;
 import CycleSafety.Server.SCPBV020.UserAuthRequest;
 import CycleSafety.Server.SCPBV020.UserAuthResponse;
 import CycleSafety.Server.SCPBV020.WebToServer;
@@ -87,7 +85,7 @@ public class WebToServerHandler {
         //TO_DO: Implement logic to fetch incidents
 
         response.setFetchIncidentsResponse(FetchIncidentsResponse.newBuilder()
-                .addAllIncidents(null)     // Replace null with the actual list of incidents
+                .addAllIncidents(Collections.emptyList())     // Replace with the actual list of incidents
                 .setTotalCount(0)           // Replace 0 with the actual total count of incidents
                 .build());                        
         return response;
@@ -124,7 +122,7 @@ public class WebToServerHandler {
         //TO_DO: Implement logic to fetch heatmap data
 
         response.setHeatmapDataResponse(HeatmapDataResponse.newBuilder()
-                .addAllPoints(null)
+                .addAllPoints(Collections.emptyList())
                 .build());
 
         return response;
@@ -141,7 +139,7 @@ public class WebToServerHandler {
         //TO_DO: Implement logic to fetch repeat offenders
 
         response.setFetchRepeatOffendersResponse(FetchRepeatOffendersResponse.newBuilder()
-                .addAllOffenders(null)     // Replace null with the actual list of repeat offenders
+                .addAllOffenders(Collections.emptyList())     // Replace with the actual list of repeat offenders
                 .setTotalCount(0)           // Replace 0 with the actual total count of repeat offenders
                 .build());
 
@@ -169,7 +167,7 @@ public class WebToServerHandler {
                         .setVehicleModel("Unknown")
                         .setVehicleColor("Unknown")
                         .build())
-                .addAllIncidents(null)
+                .addAllIncidents(Collections.emptyList())
                 .build());
 
         return response;
