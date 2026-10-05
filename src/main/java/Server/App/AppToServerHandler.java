@@ -17,14 +17,11 @@ import CycleSafety.Server.SCPBV020.UserAuthRequest;
 import CycleSafety.Server.SCPBV020.UserAuthResponse;
 
 public class AppToServerHandler {
-    
 
-
+    // Handles the different requests from the app client and returns the appropriate response
     public static void handleAppToServer(InputStream in, OutputStream out, int clientID) {
         AppToServer request;
-        try {
-
-        
+        try {        
             while ((request = AppToServer.parseDelimitedFrom(in)) != null) {
                 ServerToApp.Builder response = ServerToApp.newBuilder();
 
@@ -53,6 +50,7 @@ public class AppToServerHandler {
         }
     }
 
+    // Handles SubmitIncidentRequest and returns a SubmitIncidentResponse
     private static ServerToApp.Builder handleIncidentSubmission(SubmitIncidentRequest request) {
         ServerToApp.Builder response = ServerToApp.newBuilder();
 
@@ -73,6 +71,7 @@ public class AppToServerHandler {
         return response;
     }
 
+    // Handles UserAuthRequest and returns a UserAuthResponse
     private static ServerToApp.Builder handleUserAuthentication(UserAuthRequest request) {
         ServerToApp.Builder response = ServerToApp.newBuilder();
 

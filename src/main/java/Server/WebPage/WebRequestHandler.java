@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,7 +25,9 @@ import CycleSafety.Server.SCPBV020.FetchRepeatOffendersRequest;
 import CycleSafety.Server.SCPBV020.HeatmapDataRequest;
 import CycleSafety.Server.SCPBV020.ServerToWeb;
 import CycleSafety.Server.SCPBV020.WebToServer;
+import Server.Controller.AuthenticationController;
 
+// Handles the different request endpoints from the web
 @RestController
 public class WebRequestHandler {
     private static final String PROTO = "application/x-protobuf";

@@ -21,9 +21,11 @@ import CycleSafety.Server.SCPBV020.WebToServer;
 
 public class WebToServerHandler {
 
+    // Handles the different requests from the web client and returns the appropriate response
     public static ServerToWeb handleRequest(WebToServer request) {
         ServerToWeb.Builder response = ServerToWeb.newBuilder();
 
+        // Determine the type of request and call the appropriate handler method
         switch (request.getPayloadCase()) {
             case FETCH_INCIDENTS_REQUEST:
                 FetchIncidentsRequest fetchRequest = request.getFetchIncidentsRequest();
@@ -62,6 +64,7 @@ public class WebToServerHandler {
         return response.build();
     }
 
+    // Handles FectchIncidentsRequest and returns a FetchIncidentsResponse
     private static ServerToWeb.Builder handleFetchIncidents(FetchIncidentsRequest request) {
         ServerToWeb.Builder response = ServerToWeb.newBuilder();
 
@@ -99,6 +102,7 @@ public class WebToServerHandler {
         return response;
     }
 
+    // Handles UserAuthRequest and returns a UserAuthResponse
     private static ServerToWeb.Builder handleUserAuthentication(UserAuthRequest request) {
         ServerToWeb.Builder response = ServerToWeb.newBuilder();
 
@@ -117,6 +121,7 @@ public class WebToServerHandler {
         return response;
     }
 
+    // Handles HeatmapDataRequest and returns a HeatmapDataResponse
     private static ServerToWeb.Builder handleHeatmapDataRequest(HeatmapDataRequest request) {
         ServerToWeb.Builder response = ServerToWeb.newBuilder();
 
@@ -136,6 +141,7 @@ public class WebToServerHandler {
         return response;
     }
 
+    // Handles FetchRepeatOffendersRequest and returns a FetchRepeatOffendersResponse
     private static ServerToWeb.Builder handleFetchRepeatOffenders(FetchRepeatOffendersRequest request) {
         ServerToWeb.Builder response = ServerToWeb.newBuilder();
 
@@ -154,6 +160,7 @@ public class WebToServerHandler {
         return response;
     }
 
+    // Handles FetchOffenderHistoryRequest and returns a FetchOffenderHistoryResponse
     private static ServerToWeb.Builder handleFetchOffenderHistory(FetchOffenderHistoryRequest request) {
         ServerToWeb.Builder response = ServerToWeb.newBuilder();
 

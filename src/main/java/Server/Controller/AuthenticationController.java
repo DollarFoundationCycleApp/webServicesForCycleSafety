@@ -1,4 +1,4 @@
-package Server;
+package Server.Controller;
 
 import java.security.MessageDigest;
 import java.util.HexFormat;
