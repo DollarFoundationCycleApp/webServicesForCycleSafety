@@ -42,7 +42,7 @@ public class ServerStart {
                 registry.addMapping("/**")
                 .allowedOrigins("*")
                 .allowedMethods("GET", "POST", "OPTIONS")
-                .allowedHeaders("(Content-Type", "Authorization");
+                .allowedHeaders("Content-Type", "Authorization");
             }
         };
     }
@@ -57,20 +57,20 @@ public class ServerStart {
                 Socket appSocket = appServerSocket.accept();
                 appID++;
                 final int id = appID;
-                System.out.println("App " + id + " connected from " + 
+                System.out.println("App " + id + " connected from " +
                     appSocket.getInetAddress().getHostAddress());
 
                 new Thread(() -> processAppConnection(appSocket, id)).start();
-            }    
+            }
         } catch (IOException e) {
             System.err.println("Error starting app server: " + e.getMessage());
-        }     
+        }
     }
 
     private static void processAppConnection(Socket clientSocket, int clientID) {
-        try (InputStream in = clientSocket.getInputStream(); 
+        try (InputStream in = clientSocket.getInputStream();
             OutputStream out = clientSocket.getOutputStream()) {
-           
+
             AppToServerHandler.handleAppToServer(in, out, clientID);
 
         } catch (IOException e) {
@@ -97,14 +97,14 @@ public class ServerStart {
                 Socket webSocket = webServerSocket.accept();
                 webID++;
                 final int id = webID;
-                System.out.println("Web " + id + " connected from " + 
+                System.out.println("Web " + id + " connected from " +
                     webSocket.getInetAddress().getHostAddress());
 
                 new Thread(() -> processWebConnection(webSocket, id)).start();
-            }    
+            }
         } catch (IOException e) {
             System.err.println("Error starting web server: " + e.getMessage());
-        }     
+        }
     }
 
 
@@ -128,9 +128,4 @@ public class ServerStart {
         }
 
     }
-
-
-    
-
-
 }

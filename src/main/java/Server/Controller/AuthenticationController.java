@@ -5,7 +5,7 @@ import java.util.HexFormat;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-class AuthenticationController {
+public class AuthenticationController {
     private static final ConcurrentHashMap<String, String> activeSessions = new ConcurrentHashMap<>();
 
     private static final String MOCK_USER = "admin";

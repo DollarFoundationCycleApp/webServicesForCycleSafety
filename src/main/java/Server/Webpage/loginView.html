@@ -141,6 +141,14 @@
             background-color: #e55c00;
         }
 
+        .login-message {
+            min-height: 18px;
+            margin-top: 12px;
+            font-size: 0.8rem;
+            color: #cc3333;
+            font-weight: bold;
+        }
+
         .join-text {
             margin-top: 25px;
             text-align: center;
@@ -170,29 +178,68 @@
         <h1>Login</h1>
         <p class="subtitle">Login to your account</p>
 
-        <form action="/api/login" method="POST">
+        <form id="login-form" action="/api/login" method="POST">
             <div class="input-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" value="" required>
+                <label for="email">Username or Email</label>
+                <input type="text" id="email" name="email" value="" required>
             </div>
 
             <div class="input-group">
                 <label for="password">Password</label>
                 <div class="input-wrapper">
                     <input type="password" id="password" name="password" value="" required>
-                    <span class="toggle-password" onclick="togglePasswordVisibility()">👁</span>
+                    <span class="toggle-password" onclick="togglePasswordVisibility()">Show</span>
                 </div>
                 <a href="#" class="forgot-link">Forgot Password</a>
             </div>
 
             <button type="submit" class="submit-btn">Sign In</button>
         </form>
+        <p id="login-message" class="login-message" aria-live="polite"></p>
 
         <p class="join-text">Dont have an account? <a href="#">Join Now</a></p>
     </div>
 </div>
 
 <script>
+    const loginForm = document.getElementById('login-form');
+    const loginMessage = document.getElementById('login-message');
+
+    loginForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        loginMessage.textContent = '';
+
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        try {
+            const response = await fetch('/api/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    usernameOrEmail: email,
+                    password: password
+                })
+            });
+
+            const result = await response.json();
+
+            if (!response.ok || !result.authenticated) {
+                loginMessage.textContent = result.message || 'Invalid login.';
+                return;
+            }
+
+            sessionStorage.setItem('sessionToken', result.sessionToken);
+            sessionStorage.setItem('userId', result.userId);
+            window.location.href = '/dashboard';
+        } catch (error) {
+            loginMessage.textContent = 'Unable to reach the server.';
+        }
+    });
+
     function togglePasswordVisibility() {
         const passwordInput = document.getElementById('password');
         if (passwordInput.type === 'password') {
