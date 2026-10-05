@@ -1,9 +1,7 @@
-package Server;
+package Server.WebPage;
 
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.util.Collections;
 
-import CycleSafety.Server.SCPBV020.AppToServer;
 import CycleSafety.Server.SCPBV020.FetchIncidentsRequest;
 import CycleSafety.Server.SCPBV020.FetchIncidentsResponse;
 import CycleSafety.Server.SCPBV020.FetchOffenderHistoryRequest;
@@ -12,67 +10,56 @@ import CycleSafety.Server.SCPBV020.FetchRepeatOffendersRequest;
 import CycleSafety.Server.SCPBV020.FetchRepeatOffendersResponse;
 import CycleSafety.Server.SCPBV020.HeatmapDataRequest;
 import CycleSafety.Server.SCPBV020.HeatmapDataResponse;
+import CycleSafety.Server.SCPBV020.Incident;
+import CycleSafety.Server.SCPBV020.Location;
 import CycleSafety.Server.SCPBV020.RepeatOffenderSummary;
 import CycleSafety.Server.SCPBV020.ServerErrorResponse;
-import CycleSafety.Server.SCPBV020.ServerToApp;
 import CycleSafety.Server.SCPBV020.ServerToWeb;
-import CycleSafety.Server.SCPBV020.SubmitIncidentRequest;
 import CycleSafety.Server.SCPBV020.UserAuthRequest;
 import CycleSafety.Server.SCPBV020.UserAuthResponse;
 import CycleSafety.Server.SCPBV020.WebToServer;
 
 public class WebToServerHandler {
-    
 
+    public static ServerToWeb handleRequest(WebToServer request) {
+        ServerToWeb.Builder response = ServerToWeb.newBuilder();
 
-    public static void handleWebToServer(InputStream in, OutputStream out, int clientID) {
-        WebToServer request;
-        try {
+        switch (request.getPayloadCase()) {
+            case FETCH_INCIDENTS_REQUEST:
+                FetchIncidentsRequest fetchRequest = request.getFetchIncidentsRequest();
+                response = handleFetchIncidents(fetchRequest);
+                break;
 
-        
-            while ((request = WebToServer.parseDelimitedFrom(in)) != null) {
-                ServerToWeb.Builder response = ServerToWeb.newBuilder();
+            case USER_AUTH_REQUEST:
+                UserAuthRequest authRequest = request.getUserAuthRequest();
+                response = handleUserAuthentication(authRequest);
+                break;
 
-                switch (request.getPayloadCase()) {
-                    case FETCH_INCIDENTS_REQUEST:
-                        FetchIncidentsRequest fetchRequest = request.getFetchIncidentsRequest();
-                        response = handleFetchIncidents(fetchRequest); 
-                        break;
+            case HEATMAP_DATA_REQUEST:
+                HeatmapDataRequest heatmapRequest = request.getHeatmapDataRequest();
+                response = handleHeatmapDataRequest(heatmapRequest);
+                break;
 
-                    case USER_AUTH_REQUEST:
-                        UserAuthRequest authRequest = request.getUserAuthRequest();
-                        response = handleUserAuthentication(authRequest);
-                        break;
-                    
-                    case HEATMAP_DATA_REQUEST:
-                        HeatmapDataRequest heatmapRequest = request.getHeatmapDataRequest();
-                        response = handleHeatmapDataRequest(heatmapRequest);
-                        break;
+            case FETCH_REPEAT_OFFENDERS_REQUEST:
+                FetchRepeatOffendersRequest repeatOffendersRequest = request.getFetchRepeatOffendersRequest();
+                response = handleFetchRepeatOffenders(repeatOffendersRequest);
+                break;
 
-                    case FETCH_REPEAT_OFFENDERS_REQUEST:
-                        FetchRepeatOffendersRequest repeatOffendersRequest = request.getFetchRepeatOffendersRequest();
-                        response = handleFetchRepeatOffenders(repeatOffendersRequest);
-                        break;
+            case FETCH_OFFENDER_HISTORY_REQUEST:
+                FetchOffenderHistoryRequest historyRequest = request.getFetchOffenderHistoryRequest();
+                response = handleFetchOffenderHistory(historyRequest);
+                break;
 
-                    case FETCH_OFFENDER_HISTORY_REQUEST:
-                        FetchOffenderHistoryRequest historyRequest = request.getFetchOffenderHistoryRequest();
-                        response = handleFetchOffenderHistory(historyRequest);
-                        break;
+            default:
+                response.setErrorResponse(ServerErrorResponse.newBuilder()
+                        .setErrorCode(400)
+                        .setErrorMessage("Unknown request type")
+                        .build())
+                        .build();
+                break;
+        }
 
-                    default:
-                        response.setErrorResponse(ServerErrorResponse.newBuilder()
-                                .setErrorCode(400)
-                                .setErrorMessage("Unknown request type")
-                                .build())
-                                .build();
-                        break;
-                }
-                    response.build().writeDelimitedTo(out);
-                    out.flush();
-            }
-        } catch (Exception e) {
-            System.err.println("Error processing request from client " + clientID + ": " + e.getMessage());
-        }        
+        return response.build();
     }
 
     private static ServerToWeb.Builder handleFetchIncidents(FetchIncidentsRequest request) {
@@ -86,9 +73,28 @@ public class WebToServerHandler {
 
         //TO_DO: Implement logic to fetch incidents
 
+        Location location = Location.newBuilder()
+                .setLatitude(37.7749)
+                .setLongitude(-122.4194)
+                .setAccuracyMeters(5.0f)
+                .build();
+
+        Incident incident = Incident.newBuilder()
+                .setDeviceEventId(1)
+                .setTimestampMs(System.currentTimeMillis())
+                .setLocation(location)
+                .setDistanceCm(200)
+                .setTimeOffsetMs(500)
+                .setIsAnonymized(anonymized)
+                .build();
+
+
+
+
+
         response.setFetchIncidentsResponse(FetchIncidentsResponse.newBuilder()
-                .addAllIncidents(null)     // Replace null with the actual list of incidents
-                .setTotalCount(0)           // Replace 0 with the actual total count of incidents
+                .addIncidents(incident)     // Replace with the actual list of incidents
+                .setTotalCount(1)           // Replace 0 with the actual total count of incidents
                 .build());                        
         return response;
     }
@@ -124,7 +130,7 @@ public class WebToServerHandler {
         //TO_DO: Implement logic to fetch heatmap data
 
         response.setHeatmapDataResponse(HeatmapDataResponse.newBuilder()
-                .addAllPoints(null)
+                .addAllPoints(Collections.emptyList())
                 .build());
 
         return response;
@@ -141,7 +147,7 @@ public class WebToServerHandler {
         //TO_DO: Implement logic to fetch repeat offenders
 
         response.setFetchRepeatOffendersResponse(FetchRepeatOffendersResponse.newBuilder()
-                .addAllOffenders(null)     // Replace null with the actual list of repeat offenders
+                .addAllOffenders(Collections.emptyList())     // Replace with the actual list of repeat offenders
                 .setTotalCount(0)           // Replace 0 with the actual total count of repeat offenders
                 .build());
 
@@ -169,7 +175,7 @@ public class WebToServerHandler {
                         .setVehicleModel("Unknown")
                         .setVehicleColor("Unknown")
                         .build())
-                .addAllIncidents(null)
+                .addAllIncidents(Collections.emptyList()) // Replace with actual list of incidents
                 .build());
 
         return response;

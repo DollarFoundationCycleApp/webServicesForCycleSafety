@@ -2,6 +2,8 @@ plugins {
     id 'java'
     id 'application'
     id 'com.google.protobuf' version '0.9.2'
+    id 'org.springframework.boot' version '4.1.1'
+	id 'io.spring.dependency-management' version '1.1.7'
 }
 
 group = 'CycleSafety'
@@ -12,6 +14,10 @@ repositories {
 }
 
 dependencies {
+    // Spring Boot
+    implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
     // Protocol Buffers
     implementation 'com.google.protobuf:protobuf-java:3.24.0'
 
