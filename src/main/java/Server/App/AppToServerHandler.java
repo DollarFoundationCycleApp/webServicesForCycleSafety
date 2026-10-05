@@ -1,10 +1,20 @@
-package Server;
+package Server.App;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
 import CycleSafety.Server.SCPBV020.*;
+import CycleSafety.Server.SCPBV020.AppToServer;
+import CycleSafety.Server.SCPBV020.Incident;
+import CycleSafety.Server.SCPBV020.IncidentPhoto;
+import CycleSafety.Server.SCPBV020.OffenderVehicle;
+import CycleSafety.Server.SCPBV020.ServerErrorResponse;
+import CycleSafety.Server.SCPBV020.ServerToApp;
+import CycleSafety.Server.SCPBV020.SubmitIncidentRequest;
+import CycleSafety.Server.SCPBV020.SubmitIncidentResponse;
+import CycleSafety.Server.SCPBV020.UserAuthRequest;
+import CycleSafety.Server.SCPBV020.UserAuthResponse;
 
 public class AppToServerHandler {
     
