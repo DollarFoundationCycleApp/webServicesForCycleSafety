@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cycle Safety Server - Dashboard</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background-color: #f0f0f0;
+            color: #222222;
+        }
+
+        .app-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 220px;
+            flex-shrink: 0;
+            background-color: #ffffff;
+            border-right: 1px solid #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .sidebar-top {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 18px 16px;
+            background-color: #ff6600;
+            color: #ffffff;
+        }
+        .icon {
+            width: 22px;
+            height: 22px;
+            display: block;
+            flex-shrink: 0;
+        }
+        .icon-placeholder {
+            width: 22px;
+            height: 22px;
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+            background-color: rgba(255, 255, 255, 0.25);
+            flex-shrink: 0;
+        }
+
+        .sidebar-brand .icon-placeholder {
+            border-color: rgba(255, 255, 255, 0.6);
+        }
+
+        .sidebar-brand span {
+            font-size: 0.95rem;
+            font-weight: bold;
+        }
+
+        .nav-list {
+            display: flex;
+            flex-direction: column;
+            padding: 10px 0;
+        }
+
+        .nav-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            font-size: 0.9rem;
+            color: #333333;
+            border-left: 3px solid transparent;
+            cursor: default;
+        }
+
+        .nav-row.selected {
+            background-color: #ffe3cc;
+            border-left: 3px solid #ff6600;
+            color: #ff6600;
+            font-weight: bold;
+        }
+
+        .sidebar-bottom {
+            border-top: 1px solid #e0e0e0;
+            padding: 12px 16px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .profile-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .profile-text {
+            display: flex;
+            flex-direction: column;
+            font-size: 0.8rem;
+            line-height: 1.2;
+        }
+
+        .profile-text .name {
+            font-weight: bold;
+            color: #222222;
+        }
+
+        .profile-text .role {
+            color: #777777;
+        }
+
+        .logout-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.85rem;
+            color: #555555;
+            cursor: default;
+        }
+
+        /* Main content */
+        .main-content {
+            flex: 1;
+            padding: 24px 28px;
+        }
+
+        .main-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .page-title {
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: #111111;
+        }
+
+        .page-subtitle {
+            font-size: 0.85rem;
+            color: #777777;
+            margin-top: 4px;
+        }
+
+        .date-range {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid #d8d8d8;
+            background-color: #ffffff;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            color: #333333;
+        }
+
+        /* Summary cards */
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 16px;
+        }
+
+        .card-label-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+            font-size: 0.8rem;
+            color: #555555;
+        }
+
+        .card-value {
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: #111111;
+            margin-bottom: 6px;
+        }
+
+        .card-trend {
+            font-size: 0.75rem;
+        }
+
+        .card-trend.down {
+            color: #cc3333;
+        }
+
+        .card-trend.up {
+            color: #2e8b3d;
+        }
+
+        .card-trend-note {
+            color: #999999;
+        }
+
+        /* Panels */
+        .panel-row {
+            display: grid;
+            grid-template-columns: 1.4fr 1fr;
+            gap: 16px;
+        }
+
+        .panel {
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 16px;
+        }
+
+        .panel-title {
+            font-size: 1rem;
+            font-weight: bold;
+            margin-bottom: 12px;
+            color: #111111;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.82rem;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 8px 6px;
+            border-bottom: 1px solid #ececec;
+        }
+
+        th {
+            color: #666666;
+            font-weight: bold;
+            background-color: #fafafa;
+        }
+
+        .preview-placeholder {
+            display: inline-block;
+            width: 50px;
+            height: 30px;
+            border: 1px solid #d8d8d8;
+            border-radius: 2px;
+            background-color: #f4f4f4;
+        }
+
+        .empty-panel-note {
+            font-size: 0.85rem;
+            color: #999999;
+            border: 1px dashed #d8d8d8;
+            border-radius: 4px;
+            padding: 40px 10px;
+            text-align: center;
+        }
+
+        /* Responsive stacking */
+        @media (max-width: 900px) {
+            .summary-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .panel-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .app-layout {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .nav-list {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+
+            .sidebar-bottom {
+                border-top: none;
+            }
+
+            .summary-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-layout">
+    <aside class="sidebar">
+        <div class="sidebar-top">
+            <div class="sidebar-brand">
+                <image class="icon" src="icons/bike.svg" alt=""></image>
+                <span>Cycle Safety Server</span>
+            </div>
+            <nav class="nav-list">
+                <div class="nav-row selected">
+                    <image class="icon" src="icons/home.svg" alt=""></image>
+                    <span>Dashboard</span>
+                </div>
+                <div class="nav-row">
+                    <image class="icon" src="icons/map.svg" alt=""></image>
+                    <span>Heatmap</span>
+                </div>
+                <div class="nav-row">
+                    <image class="icon" src="icons/view-list.svg" alt=""></image>
+                    <span>Reports</span>
+                </div>
+                <div class="nav-row">
+                    <image class="icon" src="icons/cog.svg" alt=""></image>
+                    <span>Settings</span>
+                </div>
+            </nav>
+        </div>
+
+        <div class="sidebar-bottom">
+            <div class="profile-row">
+                <image class="icon" src="icons/card-account-details.svg" alt=""></image>
+                <div class="profile-text">
+                    <span class="name">Rob Dollar</span>
+                    <span class="role">Administrator</span>
+                </div>
+            </div>
+            <div class="logout-row">
+                <image class="icon" src="icons/logout.svg" alt=""></image>
+                <span>Logout</span>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <div class="main-header">
+            <div>
+                <div class="page-title">Heatmap</div>
+                <div class="page-subtitle">Overview of Safety Data</div>
+            </div>
+            <div class="date-range">
+                <span>09/01/26 - 09/30/26</span>
+                <image class="icon" src="icons/calendar-month.svg" alt=""></image>
+            </div>
+        </div>
+
+        
+
+       
+        </section>
+    </main>
+</div>
+
+</body>
+</html>

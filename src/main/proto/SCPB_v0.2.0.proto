@@ -24,7 +24,7 @@ message ServerToApp {
 // Message sent from the Web Front to the Server.
 message WebToServer {
   oneof payload {
-    UFetchIncidentsRequest fetch_incidents_request = 1;
+    FetchIncidentsRequest fetch_incidents_request = 1;
     UserAuthRequest user_auth_request = 2;
     HeatmapDataRequest heatmap_data_request = 3;
     FetchRepeatOffendersRequest fetch_repeat_offenders_request = 4;
