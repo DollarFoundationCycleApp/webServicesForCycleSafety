@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import Server.AuthenticationController;
 import CycleSafety.Server.SCPBV020.FetchIncidentsRequest;
 import CycleSafety.Server.SCPBV020.FetchOffenderHistoryRequest;
 import CycleSafety.Server.SCPBV020.FetchRepeatOffendersRequest;
@@ -77,7 +76,12 @@ public class WebRequestHandler {
         ));
     }
 
-    @GetMapping(value = "/incidents", produces = PROTO)
+    @GetMapping(value = "/heatmap", produces = MediaType.TEXT_HTML_VALUE)
+    public ResponseEntity<byte[]> heatmapPage() throws IOException {
+        return fileResponse(WEB_ROOT.resolve("heatmapView.html"), MediaType.TEXT_HTML);
+    }
+
+    @GetMapping(value = "/api/incidents", produces = PROTO)
     public ServerToWeb incidents(
         @RequestParam(defaultValue = "0") long userId,
         @RequestParam(defaultValue = "50") int limit,
@@ -94,7 +98,7 @@ public class WebRequestHandler {
                 .build());
     }
 
-    @GetMapping(value = "/heatmap", produces = PROTO)
+    @GetMapping(value = "/api/heatmap", produces = PROTO)
     public ServerToWeb heatmap(
         @RequestParam(defaultValue = "-90") double minLat,
         @RequestParam(defaultValue = "90") double maxLat,
@@ -102,6 +106,7 @@ public class WebRequestHandler {
         @RequestParam(defaultValue = "180") double maxLong,
         @RequestParam(defaultValue = "50") long start,
         @RequestParam(required = false) Long end) {
+
 
             return WebToServerHandler.handleRequest(WebToServer.newBuilder()
                 .setHeatmapDataRequest(HeatmapDataRequest.newBuilder()
@@ -115,7 +120,7 @@ public class WebRequestHandler {
                 .build());
     }
 
-    @GetMapping(value = "/repeat-offenders", produces = PROTO)
+    @GetMapping(value = "/api/repeat-offenders", produces = PROTO)
     public ServerToWeb repeatOffenders(
         @RequestParam(defaultValue = "2") int minIncidents,
         @RequestParam(defaultValue = "50") int limit,
@@ -131,7 +136,7 @@ public class WebRequestHandler {
                 .build());
     }
  
-    @GetMapping(value = "/offender-history", produces = PROTO)
+    @GetMapping(value = "/api/offender-history", produces = PROTO)
     public ServerToWeb offenderHistory(
         @RequestParam(defaultValue = "") String plate,
         @RequestParam(defaultValue = "") String state,
@@ -147,6 +152,8 @@ public class WebRequestHandler {
                 .build());
     }
 
+/*    
+
     @PostMapping(value = "/login", consumes = PROTO, produces = PROTO)
     public ResponseEntity<ServerToWeb> login(@RequestBody WebToServer request) {
         if (request.getPayloadCase() != WebToServer.PayloadCase.USER_AUTH_REQUEST) {
@@ -154,6 +161,7 @@ public class WebRequestHandler {
         }
         return ResponseEntity.ok(WebToServerHandler.handleRequest(request));
     }
+*/
 
     private static ResponseEntity<byte[]> fileResponse(Path path, MediaType mediaType) throws IOException {
         Path normalizedPath = path.toAbsolutePath().normalize();
