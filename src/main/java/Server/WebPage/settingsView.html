@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cycle Safety Server - Dashboard</title>
+    <title>Cycle Safety Server - Settings</title>
     <style>
         * {
             box-sizing: border-box;
@@ -281,7 +281,7 @@
             text-align: center;
         }
 
-        a  {
+        a {
             text-decoration: none;
             color: inherit;
         }
@@ -335,7 +335,7 @@
                 <span>Cycle Safety Server</span>
             </div>
             <nav class="nav-list">
-                <a class="nav-row selected" href="/dashboard">
+                <a class="nav-row" href="/dashboard">
                     <image class="icon" src="icons/home.svg" alt=""></image>
                     <span>Dashboard</span>
                 </a>
@@ -347,7 +347,7 @@
                     <image class="icon" src="icons/view-list.svg" alt=""></image>
                     <span>Reports</span>
                 </a>
-                <a class="nav-row" href="/settings">
+                <a class="nav-row selected" href="/settings">
                     <image class="icon" src="icons/cog.svg" alt=""></image>
                     <span>Settings</span>
                 </a>
@@ -372,7 +372,7 @@
     <main class="main-content">
         <div class="main-header">
             <div>
-                <div class="page-title">Dashboard</div>
+                <div class="page-title">Settings</div>
                 <div class="page-subtitle">Overview of Safety Data</div>
             </div>
             <div class="date-range">
@@ -381,89 +381,9 @@
             </div>
         </div>
 
-        <section class="summary-cards">
-            <div class="card">
-                <div class="card-label-row">
-                    <image class="icon" src="icons/camera.svg" alt=""></image>
-                    <span>Total Incidents</span>
-                </div>
-                <div class="card-value">1102</div>
-                <div class="card-trend down">&darr; 4% <span class="card-trend-note">vs last period</span></div>
-            </div>
+        
 
-            <div class="card">
-                <div class="card-label-row">
-                    <image class="icon" src="icons/alert.svg" alt=""></image>
-                    <span>High-Risk Areas</span>
-                </div>
-                <div class="card-value">27</div>
-                <div class="card-trend down">&darr; 6% <span class="card-trend-note">vs last period</span></div>
-            </div>
-
-            <div class="card">
-                <div class="card-label-row">
-                    <image class="icon" src="icons/account-multiple.svg" alt=""></image>
-                    <span>Active Users</span>
-                </div>
-                <div class="card-value">407</div>
-                <div class="card-trend up">&uarr; 2% <span class="card-trend-note">vs last period</span></div>
-            </div>
-
-            <div class="card">
-                <div class="card-label-row">
-                    <image class="icon" src="icons/web.svg" alt=""></image>
-                    <span>Users - Last 24hrs</span>
-                </div>
-                <div class="card-value">3145</div>
-                <div class="card-trend up">&uarr; 17% <span class="card-trend-note">vs last period</span></div>
-            </div>
-        </section>
-
-        <section class="panel-row">
-            <div class="panel">
-                <div class="panel-title">Recent Incidents</div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Location</th>
-                            <th>Type</th>
-                            <th>Preview</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>09/30/2026 4:44 pm</td>
-                            <td>Tempe</td>
-                            <td>Hazard</td>
-                            <td><span class="preview-placeholder"></span></td>
-                        </tr>
-                        <tr>
-                            <td>09/30/2026 4:32 pm</td>
-                            <td>Scottsdale</td>
-                            <td>Near Miss</td>
-                            <td><span class="preview-placeholder"></span></td>
-                        </tr>
-                        <tr>
-                            <td>09/30/2026 4:09 pm</td>
-                            <td>Mesa</td>
-                            <td>Close Pass</td>
-                            <td><span class="preview-placeholder"></span></td>
-                        </tr>
-                        <tr>
-                            <td>09/30/2026 3:22 pm</td>
-                            <td>Gilbert</td>
-                            <td>Other</td>
-                            <td><span class="preview-placeholder"></span></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="panel">
-                <div class="panel-title">Incident Types</div>
-                <div class="empty-panel-note">Chart area reserved</div>
-            </div>
+       
         </section>
     </main>
 </div>

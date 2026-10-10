@@ -42,6 +42,21 @@ public class WebRequestHandler {
     public ResponseEntity<byte[]> dashboardPage() throws IOException {
         return fileResponse(WEB_ROOT.resolve("dashboardView.html"), MediaType.TEXT_HTML);
     }
+    
+    @GetMapping(value = "/heatmap", produces = MediaType.TEXT_HTML_VALUE)
+    public ResponseEntity<byte[]> heatmapPage() throws IOException {
+        return fileResponse(WEB_ROOT.resolve("heatmapView.html"), MediaType.TEXT_HTML);
+    }
+
+    @GetMapping(value = "/reports", produces = MediaType.TEXT_HTML_VALUE)
+    public ResponseEntity<byte[]> reportsPage() throws IOException {
+        return fileResponse(WEB_ROOT.resolve("reportsView.html"), MediaType.TEXT_HTML);
+    }
+
+    @GetMapping(value = "/settings", produces = MediaType.TEXT_HTML_VALUE)
+    public ResponseEntity<byte[]> settingsPage() throws IOException {
+        return fileResponse(WEB_ROOT.resolve("settingsView.html"), MediaType.TEXT_HTML);
+    }
 
     @GetMapping("/icons/{fileName:.+}")
     public ResponseEntity<byte[]> icon(@PathVariable String fileName) throws IOException {
@@ -76,10 +91,6 @@ public class WebRequestHandler {
         ));
     }
 
-    @GetMapping(value = "/heatmap", produces = MediaType.TEXT_HTML_VALUE)
-    public ResponseEntity<byte[]> heatmapPage() throws IOException {
-        return fileResponse(WEB_ROOT.resolve("heatmapView.html"), MediaType.TEXT_HTML);
-    }
 
     @GetMapping(value = "/api/incidents", produces = PROTO)
     public ServerToWeb incidents(
