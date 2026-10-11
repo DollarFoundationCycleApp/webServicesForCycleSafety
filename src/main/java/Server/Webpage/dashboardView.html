@@ -171,6 +171,76 @@
             border-radius: 4px;
             font-size: 0.85rem;
             color: #333333;
+            position: relative;
+        }
+
+        /* Calendar popup */
+        .calendar-button {
+            border: none;
+            background: none;
+            cursor: pointer;
+        }
+
+        .calendar-popup {
+            position: absolute;
+            top: calc(100% + 6px);
+            right: 0;
+            z-index: 2000;
+            width: 250px;
+            background-color: #ffffff;
+            border: 1px solid #d8d8d8;
+            border-radius: 4px;
+            padding: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #111111;
+        }
+
+        .calendar-nav {
+            width: 26px;
+            height: 26px;
+            border: 1px solid #d8d8d8;
+            border-radius: 4px;
+            background-color: #ffffff;
+            color: #333333;
+            cursor: pointer;
+        }
+
+        .calendar-nav:hover {
+            background-color: #ffe3cc;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+            text-align: center;
+        }
+
+        .calendar-weekday {
+            font-size: 0.7rem;
+            font-weight: bold;
+            color: #777777;
+            padding: 4px 0;
+        }
+
+        .calendar-day {
+            font-size: 0.8rem;
+            padding: 6px 0;
+            border-radius: 4px;
+        }
+
+        .calendar-day.today {
+            background-color: #ff6600;
+            color: #ffffff;
+            font-weight: bold;
         }
 
         /* Summary cards */
@@ -313,6 +383,11 @@
             .summary-cards {
                 grid-template-columns: 1fr;
             }
+
+            .calendar-popup {
+                left: 0;
+                right: auto;
+            }
         }
     </style>
 </head>
@@ -368,7 +443,26 @@
             </div>
             <div class="date-range">
                 <span>09/01/26 - 09/30/26</span>
-                <image class="icon" src="icons/calendar-month.svg" alt=""></image>
+                <button type="button" class="calendar-button" id="calendar-button" aria-label="Open calendar" aria-expanded="false">
+                    <image class="icon" src="icons/calendar-month.svg" alt=""></image>
+                </button>
+                <div class="calendar-popup" id="calendar-popup" hidden>
+                    <div class="calendar-header">
+                        <button type="button" class="calendar-nav" id="calendar-prev" aria-label="Previous month">&lsaquo;</button>
+                        <span id="calendar-title"></span>
+                        <button type="button" class="calendar-nav" id="calendar-next" aria-label="Next month">&rsaquo;</button>
+                    </div>
+                    <div class="calendar-grid">
+                        <span class="calendar-weekday">Su</span>
+                        <span class="calendar-weekday">Mo</span>
+                        <span class="calendar-weekday">Tu</span>
+                        <span class="calendar-weekday">We</span>
+                        <span class="calendar-weekday">Th</span>
+                        <span class="calendar-weekday">Fr</span>
+                        <span class="calendar-weekday">Sa</span>
+                    </div>
+                    <div class="calendar-grid" id="calendar-days"></div>
+                </div>
             </div>
         </div>
 
@@ -458,6 +552,81 @@
         </section>
     </main>
 </div>
+
+<script>
+    // Calendar popup: display only, does not filter any data
+    (function () {
+        var button = document.getElementById('calendar-button');
+        var popup = document.getElementById('calendar-popup');
+        var title = document.getElementById('calendar-title');
+        var days = document.getElementById('calendar-days');
+        var shownMonth = new Date();
+        shownMonth.setDate(1);
+
+        function render() {
+            var year = shownMonth.getFullYear();
+            var month = shownMonth.getMonth();
+            var today = new Date();
+            var firstWeekday = new Date(year, month, 1).getDay();
+            var dayCount = new Date(year, month + 1, 0).getDate();
+
+            title.textContent = shownMonth.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+            days.innerHTML = '';
+
+            for (var blank = 0; blank < firstWeekday; blank++) {
+                days.appendChild(document.createElement('span'));
+            }
+
+            for (var day = 1; day <= dayCount; day++) {
+                var cell = document.createElement('span');
+                cell.className = 'calendar-day';
+                cell.textContent = day;
+                if (year === today.getFullYear() && month === today.getMonth() && day === today.getDate()) {
+                    cell.classList.add('today');
+                }
+                days.appendChild(cell);
+            }
+        }
+
+        function setOpen(open) {
+            popup.hidden = !open;
+            button.setAttribute('aria-expanded', String(open));
+        }
+
+        function changeMonth(amount) {
+            shownMonth.setMonth(shownMonth.getMonth() + amount);
+            render();
+        }
+
+        button.addEventListener('click', function () {
+            if (popup.hidden) {
+                render();
+            }
+            setOpen(popup.hidden);
+        });
+
+        document.getElementById('calendar-prev').addEventListener('click', function () {
+            changeMonth(-1);
+        });
+
+        document.getElementById('calendar-next').addEventListener('click', function () {
+            changeMonth(1);
+        });
+
+        // Close when clicking outside the date range box or pressing Escape
+        document.addEventListener('click', function (event) {
+            if (!button.parentElement.contains(event.target)) {
+                setOpen(false);
+            }
+        });
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                setOpen(false);
+            }
+        });
+    })();
+</script>
 
 </body>
 </html>
