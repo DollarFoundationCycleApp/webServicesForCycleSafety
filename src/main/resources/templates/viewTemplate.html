@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+        th:fragment="viewLayout(title, subTitle, active, content)">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title text="'Cycle Safety Server - ' + ${title}">Cycle Saftey Server</title>
+    <link href="css/style.css" rel="stylesheet"/>
+</head>
+<body>
+<div class="app-layout">
+    <aside class="sidebar">
+        <div class="sidebar-top">
+            <div class="sidebar-brand">
+                <image class="icon" src="icons/bike.svg" alt=""></image>
+                <span>Cycle Safety Server</span>
+            </div>
+            <nav class="nav-list">
+                <a class="nav-row" th:classappend="${active == 'dashboard'} ? 'selected'" th:href="@{/dashboard}">
+                    <image class="icon" src="icons/home.svg" alt=""></image>
+                    <span>Dashboard</span>
+                </a>
+                <a class="nav-row" th:classappend="${active == 'heatmap'} ? 'selected'" th:href="@{/heatmap}">
+                    <image class="icon" src="icons/map.svg" alt=""></image>
+                    <span>Heatmap</span>
+                </a>
+                <a class="nav-row" th:classappend="${active == 'reports'} ? 'selected'" th:href="@{/reports}">
+                    <image class="icon" src="icons/view-list.svg" alt=""></image>
+                    <span>Reports</span>
+                </a>
+                <a class="nav-row" th:classappend="${active == 'settings'} ? 'selected'" th:href="@{/settings}">
+                    <image class="icon" src="icons/cog.svg" alt=""></image>
+                    <span>Settings</span>
+                </a>
+            </nav>
+        </div>
+
+        <div class="sidebar-bottom">
+            <div class="profile-row">
+                <image class="icon" src="icons/card-account-details.svg" alt=""></image>
+                <div class="profile-text">
+                    <span class="name">Rob Dollar</span>
+                    <span class="role">Administrator</span>
+                </div>
+            </div>
+            <div class="logout-row">
+                <image class="icon" src="icons/logout.svg" alt=""></image>
+                <span>Logout</span>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <div class="main-header">
+            <div>
+                <div class="page-title" th:text="${title}">Title</div>
+                <div class="page-subtitle" th:text="${subTitle}">Overview of Safety Data</div>
+            </div>
+            <div class="date-range">
+                <span>09/01/26 - 09/30/26</span>
+                <button type="button" class="calendar-button" id="calendar-button" aria-label="Open calendar" aria-expanded="false">
+                    <image class="icon" src="icons/calendar-month.svg" alt=""></image>
+                </button>
+                <div class="calendar-popup" id="calendar-popup" hidden>
+                    <div class="calendar-header">
+                        <button type="button" class="calendar-nav" id="calendar-prev" aria-label="Previous month">&lsaquo;</button>
+                        <span id="calendar-title"></span>
+                        <button type="button" class="calendar-nav" id="calendar-next" aria-label="Next month">&rsaquo;</button>
+                    </div>
+                    <div class="calendar-grid">
+                        <span class="calendar-weekday">Su</span>
+                        <span class="calendar-weekday">Mo</span>
+                        <span class="calendar-weekday">Tu</span>
+                        <span class="calendar-weekday">We</span>
+                        <span class="calendar-weekday">Th</span>
+                        <span class="calendar-weekday">Fr</span>
+                        <span class="calendar-weekday">Sa</span>
+                    </div>
+                    <div class="calendar-grid" id="calendar-days"></div>
+                </div>
+            </div>
+        </div>
+
+        <th:block th:replace="${content}"></th:block>
+    </main>
+</div>
+
+<script type="text/javascript" src="js/calendar.js"></script>
+
+</body>
+</html>
