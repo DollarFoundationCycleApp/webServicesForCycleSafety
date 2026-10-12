@@ -1,19 +1,12 @@
 package Server.WebPage;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Map;
 
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,44 +23,7 @@ import Server.Controller.AuthenticationController;
 @RestController
 public class WebRequestHandler {
     private static final String PROTO = "application/x-protobuf";
-    private static final Path WEB_ROOT = Path.of("src", "main", "java", "Server", "Webpage");
-    private static final Path IMAGE_ROOT = Path.of("Images");
-
-    @GetMapping(value = {"/", "/login"}, produces = MediaType.TEXT_HTML_VALUE)
-    public ResponseEntity<byte[]> loginPage() throws IOException {
-        return fileResponse(WEB_ROOT.resolve("loginView.html"), MediaType.TEXT_HTML);
-    }
-
-    @GetMapping(value = "/dashboard", produces = MediaType.TEXT_HTML_VALUE)
-    public ResponseEntity<byte[]> dashboardPage() throws IOException {
-        return fileResponse(WEB_ROOT.resolve("dashboardView.html"), MediaType.TEXT_HTML);
-    }
     
-    @GetMapping(value = "/heatmap", produces = MediaType.TEXT_HTML_VALUE)
-    public ResponseEntity<byte[]> heatmapPage() throws IOException {
-        return fileResponse(WEB_ROOT.resolve("heatmapView.html"), MediaType.TEXT_HTML);
-    }
-
-    @GetMapping(value = "/reports", produces = MediaType.TEXT_HTML_VALUE)
-    public ResponseEntity<byte[]> reportsPage() throws IOException {
-        return fileResponse(WEB_ROOT.resolve("reportsView.html"), MediaType.TEXT_HTML);
-    }
-
-    @GetMapping(value = "/settings", produces = MediaType.TEXT_HTML_VALUE)
-    public ResponseEntity<byte[]> settingsPage() throws IOException {
-        return fileResponse(WEB_ROOT.resolve("settingsView.html"), MediaType.TEXT_HTML);
-    }
-
-    @GetMapping("/icons/{fileName:.+}")
-    public ResponseEntity<byte[]> icon(@PathVariable String fileName) throws IOException {
-        return fileResponse(resolveStaticPath(WEB_ROOT.resolve("icons"), fileName), MediaType.valueOf("image/svg+xml"));
-    }
-
-    @GetMapping("/Images/{fileName:.+}")
-    public ResponseEntity<byte[]> image(@PathVariable String fileName) throws IOException {
-        return fileResponse(resolveStaticPath(IMAGE_ROOT, fileName), imageMediaType(fileName));
-    }
-
     @PostMapping(value = "/api/login", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map<String, Object>> loginJson(@RequestBody LoginRequest request) {
         String sessionToken = AuthenticationController.authenticateUser(
@@ -161,48 +117,6 @@ public class WebRequestHandler {
                     .setLimit(limit)
                     .setOffset(offset))
                 .build());
-    }
-
-/*    
-
-    @PostMapping(value = "/login", consumes = PROTO, produces = PROTO)
-    public ResponseEntity<ServerToWeb> login(@RequestBody WebToServer request) {
-        if (request.getPayloadCase() != WebToServer.PayloadCase.USER_AUTH_REQUEST) {
-            return ResponseEntity.badRequest().build();
-        }
-        return ResponseEntity.ok(WebToServerHandler.handleRequest(request));
-    }
-*/
-
-    private static ResponseEntity<byte[]> fileResponse(Path path, MediaType mediaType) throws IOException {
-        Path normalizedPath = path.toAbsolutePath().normalize();
-        if (!Files.isRegularFile(normalizedPath)) {
-            return ResponseEntity.notFound().build();
-        }
-
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_TYPE, mediaType.toString())
-                .body(Files.readAllBytes(normalizedPath));
-    }
-
-    private static Path resolveStaticPath(Path root, String fileName) throws IOException {
-        Path normalizedRoot = root.toAbsolutePath().normalize();
-        Path resolved = normalizedRoot.resolve(fileName).normalize();
-        if (!resolved.startsWith(normalizedRoot)) {
-            throw new IOException("Invalid static path");
-        }
-        return resolved;
-    }
-
-    private static MediaType imageMediaType(String fileName) {
-        String lowerName = fileName.toLowerCase();
-        if (lowerName.endsWith(".png")) {
-            return MediaType.IMAGE_PNG;
-        }
-        if (lowerName.endsWith(".jpg") || lowerName.endsWith(".jpeg")) {
-            return MediaType.IMAGE_JPEG;
-        }
-        return MediaType.APPLICATION_OCTET_STREAM;
     }
 
     public record LoginRequest(String usernameOrEmail, String password) {
