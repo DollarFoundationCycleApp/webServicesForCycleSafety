@@ -15,6 +15,7 @@ import CycleSafety.Server.SCPBV020.SubmitIncidentRequest;
 import CycleSafety.Server.SCPBV020.SubmitIncidentResponse;
 import CycleSafety.Server.SCPBV020.UserAuthRequest;
 import CycleSafety.Server.SCPBV020.UserAuthResponse;
+import Server.Controller.AuthenticationController;
 import Server.Model.DatabaseCommunicationContext;
 
 public class AppToServerHandler {
@@ -87,14 +88,13 @@ public class AppToServerHandler {
         String username = request.getUsernameOrEmail();
         String token = request.getAuthTokenOrHash();
 
-
-        //TO_DO: Implement logic to authenticate the user
+        String sessionToken = AuthenticationController.authenticateUserHash(username, token);
 
         response.setUserAuthResponse(UserAuthResponse.newBuilder()
-                .setAuthenticated(true)
+                .setAuthenticated(sessionToken != null)
                 .setUserId(username)
-                .setSessionToken("123")
-                .setIsAdmin(true));
+                .setSessionToken(sessionToken != null ? sessionToken : "")
+                .setIsAdmin(sessionToken != null));
 
         return response;
     }
