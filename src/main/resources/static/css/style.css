@@ -233,12 +233,29 @@ body {
     padding: 6px 0;
     border-radius: 4px;
     cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.calendar-day:hover {
+    background-color: #f5f5f5;
 }
 
 .calendar-day.today {
+    background-color: #e0e0e0;
+    color: #111111;
+    font-weight: bold;
+}
+
+.calendar-day.in-range {
+    background-color: #ffe3cc;
+    color: #ff6600;
+}
+
+.calendar-day.range-end {
     background-color: #ff6600;
     color: #ffffff;
     font-weight: bold;
+    transform: scale(1.1);
 }
 
 /* Summary cards */

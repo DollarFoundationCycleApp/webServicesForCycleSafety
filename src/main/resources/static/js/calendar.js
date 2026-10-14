@@ -25,6 +25,20 @@
             text += formatDate(stopDate);
         }
         rangeText.textContent = text;
+        highlightSelection();
+    }
+
+    // Updates classes in place so the clicked cell stays in the DOM and the popup stays open
+    function highlightSelection() {
+        var cells = days.querySelectorAll('.calendar-day');
+        for (var i = 0; i < cells.length; i++) {
+            var time = Number(cells[i].dataset.time);
+            var isStart = startDate !== null && time === startDate.getTime();
+            var isStop = stopDate !== null && time === stopDate.getTime();
+            var inRange = stopDate !== null && time > startDate.getTime() && time < stopDate.getTime();
+            cells[i].classList.toggle('range-end', isStart || isStop);
+            cells[i].classList.toggle('in-range', inRange);
+        }
     }
 
     function formatDate(date) {
@@ -52,9 +66,12 @@
             if (year === today.getFullYear() && month === today.getMonth() && day === today.getDate()) {
                 cell.classList.add('today');
             }
-            cell.addEventListener('click', selectDate.bind(null, new Date(year, month, day)));
+            var date = new Date(year, month, day);
+            cell.dataset.time = date.getTime();
+            cell.addEventListener('click', selectDate.bind(null, date));
             days.appendChild(cell);
         }
+        highlightSelection();
     }
 
     function setOpen(open) {
