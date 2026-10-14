@@ -3,8 +3,33 @@
     var popup = document.getElementById('calendar-popup');
     var title = document.getElementById('calendar-title');
     var days = document.getElementById('calendar-days');
+    var rangeText = document.getElementById('date-range-text');
     var shownMonth = new Date();
     shownMonth.setDate(1);
+    var startDate = null;
+    var stopDate = null;
+
+    // First click sets the start date, second sets the stop date, third starts a new range
+    function selectDate(date) {
+        if (startDate === null || stopDate !== null) {
+            startDate = date;
+            stopDate = null;
+        } else if (date < startDate) {
+            stopDate = startDate;
+            startDate = date;
+        } else {
+            stopDate = date;
+        }
+        var text = formatDate(startDate) + ' - ';
+        if (stopDate !== null) {
+            text += formatDate(stopDate);
+        }
+        rangeText.textContent = text;
+    }
+
+    function formatDate(date) {
+        return date.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' });
+    }
 
     function render() {
         var year = shownMonth.getFullYear();
@@ -27,6 +52,7 @@
             if (year === today.getFullYear() && month === today.getMonth() && day === today.getDate()) {
                 cell.classList.add('today');
             }
+            cell.addEventListener('click', selectDate.bind(null, new Date(year, month, day)));
             days.appendChild(cell);
         }
     }

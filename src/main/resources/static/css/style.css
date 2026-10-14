@@ -232,6 +232,7 @@ body {
     font-size: 0.8rem;
     padding: 6px 0;
     border-radius: 4px;
+    cursor: pointer;
 }
 
 .calendar-day.today {
