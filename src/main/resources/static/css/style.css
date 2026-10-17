@@ -125,10 +125,19 @@ body {
 .logout-row {
     display: flex;
     align-items: center;
-    gap: 10px;
-    font-size: 0.85rem;
-    color: #555555;
-    cursor: default;
+    gap: 12px;
+    width: 100%;
+    background: none;
+    border: none;
+    border-left: solid transparent;
+    font-size: 0.9rem;
+    color: #333333;
+    text-align: left;
+    cursor: pointer;
+}
+
+.logout-row:hover:not(.selected) {
+    background-color: #f5f5f5;
 }
 
 /* Main content */
