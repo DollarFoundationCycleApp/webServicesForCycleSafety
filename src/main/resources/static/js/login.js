@@ -28,7 +28,6 @@ loginForm.addEventListener('submit', async (event) => {
             return;
         }
 
-        sessionStorage.setItem('sessionToken', result.sessionToken);
         sessionStorage.setItem('userId', result.userId);
         window.location.href = '/dashboard';
     } catch (error) {

@@ -1,10 +1,14 @@
 package Server.WebPage;
 
+import java.time.Duration;
 import java.util.Map;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -40,20 +44,36 @@ public class WebRequestHandler {
                     ));
         }
 
-        return ResponseEntity.ok(Map.of(
-                "authenticated", true,
-                "userId", request.usernameOrEmail(),
-                "sessionToken", sessionToken,
-                "isAdmin", true
+        ResponseCookie cookie = ResponseCookie.from("SESSION", sessionToken)
+            .httpOnly(true)
+            .path("/")
+            .sameSite("Lax")
+            .maxAge(Duration.ofHours(8))
+            .build();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(Map.of(
+                    "authenticated", true,
+                    "userId", request.usernameOrEmail(),
+                    "sessionToken", sessionToken,
+                    "isAdmin", true
         ));
     }
 
-    @PostMapping(value = "/api/logout", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Map<String, Object>> logoutJson(@RequestHeader(
-            value = "Authorization", required = false) String sessionToken) {
+    @PostMapping(value = "/api/logout", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Map<String, Object>> logoutJson(
+            @CookieValue(value = "SESSION", required = false) String sessionToken) {
         
                 AuthenticationController.logout(sessionToken);
-                return ResponseEntity.ok(Map.of("loggedOut", true));
+                ResponseCookie expCookie = ResponseCookie.from("SESSION", "")
+                    .path("/")
+                    .maxAge(0)
+                    .build();
+
+                return ResponseEntity.ok()
+                    .header(HttpHeaders.SET_COOKIE, expCookie.toString())
+                    .body(Map.of("loggedOut", true));
     }
 
 
