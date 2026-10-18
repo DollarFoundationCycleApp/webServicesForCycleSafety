@@ -409,3 +409,30 @@ a  {
         right: auto;
     }
 }
+/* Heatmap */
+.map-panel {
+    position: relative;
+    z-index: 0;
+    background-color: #ffffff;
+    border: 1px solid #d8d8d8;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+#map {
+    width: 100%;
+    height: calc(100vh - 140px);
+    min-height: 360px;
+}
+
+.map-status {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background-color: #ffffff;
+    border: 1px solid #d8d8d8;
+    border-radius: 4px;
+    padding: 6px 10px;
+    font-size: 0.8rem;
+    color: #555555;
+}
