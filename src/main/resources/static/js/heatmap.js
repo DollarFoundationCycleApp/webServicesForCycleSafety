@@ -52,10 +52,28 @@
         customAttribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }));
 
-    // Pin each incident at its [longitude, latitude]. call marker.addTo(map) to show them.
+    // Pin each incident at its [longitude, latitude], shown only when zoomed in to street level
+    var pinMinZoom = 16;
+    var pinsShown = false;
     var incidentMarkers = incidentLocations.map(function (location) {
         return new maplibregl.Marker().setLngLat(location);
     });
+
+    function updatePins() {
+        var showPins = map.getZoom() >= pinMinZoom;
+        if (showPins === pinsShown) {
+            return;
+        }
+        incidentMarkers.forEach(function (marker) {
+            if (showPins) {
+                marker.addTo(map);
+            } else {
+                marker.remove();
+            }
+        });
+        pinsShown = showPins;
+    }
+    map.on('zoom', updatePins);
 
     function incidentHeatmap() {
         map.addSource('incidents', {
@@ -139,6 +157,7 @@
 
     map.on('load', function () {
         incidentHeatmap();
+        updatePins();
         // Only the dev basemap has the 'osm' layer to recolor
         colorToggle.hidden = !map.getLayer('osm');
         if (styleUrl) {
