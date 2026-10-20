@@ -1,5 +1,6 @@
 package Server.WebPage;
 
+import Server.Controller.AuthenticationController;
 import Server.Model.Incident;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -10,6 +11,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
@@ -115,10 +117,17 @@ public class WebController {
                     LocalDateTime.of(2026, 9, 29, 16, 0)));
 
     @GetMapping({"/", "/login"})
-    public String login() { return "loginView"; }
+    public String login(@CookieValue(value = "SESSION", required = false) String session) { 
+        if (AuthenticationController.isValidSession(session)) {
+            return "redirect:/dashboard";
+        }
+        return "loginView"; }
 
     @GetMapping({"/dashboard"})
-    public String dashboard(Model model) {
+    public String dashboard(@CookieValue(value = "SESSION", required = false) String session, Model model) {
+        if (!AuthenticationController.isValidSession(session)) {
+            return "redirect:/login";
+        }
         model.addAttribute("incidents", SAMPLE_INCIDENTS.stream()
                 .sorted(Comparator.comparing(Incident::createdTime).reversed())
                 .toList());
@@ -126,7 +135,10 @@ public class WebController {
     }
 
     @GetMapping({"/heatmap"})
-    public String heatmap(Model model) {
+    public String heatmap(@CookieValue(value = "SESSION", required = false) String session, Model model) {
+        if (!AuthenticationController.isValidSession(session)) {
+            return "redirect:/login";
+        }
         model.addAttribute("mapStyleUrl", mapStyleUrl);
         model.addAttribute("mapCenterLat", mapCenterLat);
         model.addAttribute("mapCenterLon", mapCenterLon);
@@ -152,14 +164,25 @@ public class WebController {
     }
 
     @GetMapping({"/incident"})
-    public String incident(Model model) {
+    public String incident(@CookieValue(value = "SESSION", required = false) String session, Model model) {
+        if (!AuthenticationController.isValidSession(session)) {
+            return "redirect:/login";
+        }
         model.addAttribute("incidents", SAMPLE_INCIDENTS);
         return "incidentView";
     }
 
     @GetMapping({"/reports"})
-    public String reports() { return "reportsView"; }
+    public String reports(@CookieValue(value = "SESSION", required = false) String session) { 
+        if (!AuthenticationController.isValidSession(session)) {
+            return "redirect:/login";
+        }
+        return "reportsView"; }
 
     @GetMapping({"/settings"})
-    public String settings() { return "settingsView"; }
+    public String settings(@CookieValue(value = "SESSION", required = false) String session) { 
+        if (!AuthenticationController.isValidSession(session)) {
+            return "redirect:/login";
+        }
+        return "settingsView"; }
 }

@@ -1,5 +1,6 @@
 package Server.WebPage;
 
+import Server.Controller.AuthenticationController;
 import org.junit.jupiter.api.Test;
 import org.springframework.ui.ExtendedModelMap;
 
@@ -15,7 +16,9 @@ public class WebControllerTest {
     public void heatmapProvidesMapSettings() {
         ExtendedModelMap model = new ExtendedModelMap();
 
-        String view = new WebController().heatmap(model);
+        String session = AuthenticationController.authenticateUser("admin", "password");
+
+        String view = new WebController().heatmap(session, model);
 
         assertEquals("heatmapView", view);
         assertTrue(model.containsAttribute("mapStyleUrl"));
