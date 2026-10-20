@@ -425,6 +425,23 @@ a  {
     min-height: 360px;
 }
 
+.map-toggle {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    background-color: #ffffff;
+    border: 1px solid #d8d8d8;
+    border-radius: 4px;
+    padding: 6px 10px;
+    font-size: 0.8rem;
+    color: #333333;
+    cursor: pointer;
+}
+
+.map-toggle:hover {
+    background-color: #ffe3cc;
+}
+
 .map-status {
     position: absolute;
     top: 10px;
