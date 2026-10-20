@@ -425,6 +425,64 @@ a  {
     min-height: 360px;
 }
 
+/* Incident popup */
+.incident-popup .maplibregl-popup-content {
+    border: 2px solid #bdbdbd;
+    border-radius: 12px;
+    background-color: #ffffff;
+    padding: 12px 14px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.incident-popup.maplibregl-popup-anchor-top .maplibregl-popup-tip,
+.incident-popup.maplibregl-popup-anchor-top-left .maplibregl-popup-tip,
+.incident-popup.maplibregl-popup-anchor-top-right .maplibregl-popup-tip {
+    border-bottom-color: #bdbdbd;
+}
+
+.incident-popup.maplibregl-popup-anchor-bottom .maplibregl-popup-tip,
+.incident-popup.maplibregl-popup-anchor-bottom-left .maplibregl-popup-tip,
+.incident-popup.maplibregl-popup-anchor-bottom-right .maplibregl-popup-tip {
+    border-top-color: #bdbdbd;
+}
+
+.incident-popup.maplibregl-popup-anchor-left .maplibregl-popup-tip {
+    border-right-color: #bdbdbd;
+}
+
+.incident-popup.maplibregl-popup-anchor-right .maplibregl-popup-tip {
+    border-left-color: #bdbdbd;
+}
+
+.incident-popup .maplibregl-popup-close-button {
+    color: #000000;
+    font-size: 1.1rem;
+    padding: 0 6px;
+}
+
+.incident-popup-title {
+    font-size: 0.95rem;
+    font-weight: bold;
+    color: #111111;
+    margin-bottom: 8px;
+    padding-right: 16px;
+}
+
+.incident-popup dl {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 4px 10px;
+    font-size: 0.78rem;
+}
+
+.incident-popup dt {
+    color: #777777;
+}
+
+.incident-popup dd {
+    color: #222222;
+}
+
 .map-toggle {
     position: absolute;
     bottom: 10px;

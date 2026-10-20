@@ -52,11 +52,56 @@
         customAttribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }));
 
-    // Pin each incident at its [longitude, latitude], shown only when zoomed in to street level
+    // [longitude, latitude], the order MapLibre expects
+    var incidentLocations = incidents.map(function (incident) {
+        return [incident.longitude, incident.latitude];
+    });
+
+    // Popup body built with textContent so incident text is never treated as HTML
+    function incidentPopupContent(incident) {
+        var driverPresent = 'No';
+        if (incident.driverPresent) {
+            driverPresent = 'Yes';
+        }
+        var rows = [
+            ['Reported', incident.createdTime],
+            ['Location', incident.latitude.toFixed(4) + ', ' + incident.longitude.toFixed(4)],
+            ['Injury severity', incident.injurySeverity],
+            ['License plate', incident.licensePlate],
+            ['Vehicle', incident.vehicleYear + ' ' + incident.vehicleMake + ' ' + incident.vehicleModel],
+            ['Vehicle color', incident.vehicleColor],
+            ['Driver present', driverPresent],
+            ['Driver information', incident.driverInformation || 'None given'],
+            ['Comment', incident.extraComment || 'None'],
+            ['Image ID', incident.imageId]
+        ];
+
+        var content = document.createElement('div');
+        var title = document.createElement('div');
+        title.className = 'incident-popup-title';
+        title.textContent = 'Incident';
+        content.appendChild(title);
+
+        var list = document.createElement('dl');
+        rows.forEach(function (row) {
+            var label = document.createElement('dt');
+            label.textContent = row[0];
+            var value = document.createElement('dd');
+            value.textContent = row[1];
+            list.appendChild(label);
+            list.appendChild(value);
+        });
+        content.appendChild(list);
+        return content;
+    }
+
+    // Pin each incident, shown only when zoomed in to street level. Clicking a pin opens its popup.
     var pinMinZoom = 16;
     var pinsShown = false;
-    var incidentMarkers = incidentLocations.map(function (location) {
-        return new maplibregl.Marker().setLngLat(location);
+    var incidentMarkers = incidents.map(function (incident, index) {
+        var popup = new maplibregl.Popup({ className: 'incident-popup', offset: 25, maxWidth: '280px' })
+            .setDOMContent(incidentPopupContent(incident));
+        return new maplibregl.Marker().setLngLat(incidentLocations[index]).setPopup(popup);
     });
 
     function updatePins() {

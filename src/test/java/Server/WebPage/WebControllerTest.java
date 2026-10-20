@@ -22,6 +22,6 @@ public class WebControllerTest {
         assertTrue(model.containsAttribute("mapCenterLat"));
         assertTrue(model.containsAttribute("mapCenterLon"));
         assertTrue(model.containsAttribute("mapZoom"));
-        assertTrue(model.containsAttribute("incidentLocations"));
+        assertTrue(model.containsAttribute("incidents"));
     }
 }

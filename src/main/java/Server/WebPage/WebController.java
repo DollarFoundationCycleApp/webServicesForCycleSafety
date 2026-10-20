@@ -2,8 +2,10 @@ package Server.WebPage;
 
 import Server.Model.Incident;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -24,6 +26,8 @@ public class WebController {
 
     @Value("${map.zoom:12}")
     private double mapZoom;
+
+    private static final DateTimeFormatter DISPLAY_TIME = DateTimeFormatter.ofPattern("MM/dd/yyyy h:mm a");
 
     // Demo data until incidents come from the app
     private static final List<Incident> SAMPLE_INCIDENTS = List.of(
@@ -127,9 +131,22 @@ public class WebController {
         model.addAttribute("mapCenterLat", mapCenterLat);
         model.addAttribute("mapCenterLon", mapCenterLon);
         model.addAttribute("mapZoom", mapZoom);
-        // [longitude, latitude] pairs, the order MapLibre expects
-        model.addAttribute("incidentLocations", SAMPLE_INCIDENTS.stream()
-                .map(incident -> List.of(incident.longitude(), incident.latitude()))
+        // Plain values only, so they serialize cleanly into the page script
+        model.addAttribute("incidents", SAMPLE_INCIDENTS.stream()
+                .map(incident -> Map.ofEntries(
+                        Map.entry("latitude", incident.latitude()),
+                        Map.entry("longitude", incident.longitude()),
+                        Map.entry("licensePlate", incident.licensePlate()),
+                        Map.entry("imageId", incident.imageId()),
+                        Map.entry("injurySeverity", incident.injurySeverity()),
+                        Map.entry("driverPresent", incident.driverPresent()),
+                        Map.entry("driverInformation", incident.driverInformation()),
+                        Map.entry("extraComment", incident.extraComment()),
+                        Map.entry("vehicleMake", incident.vehicleMake()),
+                        Map.entry("vehicleModel", incident.vehicleModel()),
+                        Map.entry("vehicleColor", incident.vehicleColor()),
+                        Map.entry("vehicleYear", incident.vehicleYear()),
+                        Map.entry("createdTime", incident.createdTime().format(DISPLAY_TIME))))
                 .toList());
         return "heatmapView";
     }
