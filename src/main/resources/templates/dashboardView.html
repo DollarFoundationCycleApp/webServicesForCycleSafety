@@ -50,33 +50,17 @@
                         <tr>
                             <th>Date</th>
                             <th>Location</th>
-                            <th>Type</th>
+                            <th>Vehicle</th>
+                            <th>Injury</th>
                             <th>Preview</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>09/30/2026 4:44 pm</td>
-                            <td>Tempe</td>
-                            <td>Hazard</td>
-                            <td><span class="preview-placeholder"></span></td>
-                        </tr>
-                        <tr>
-                            <td>09/30/2026 4:32 pm</td>
-                            <td>Scottsdale</td>
-                            <td>Near Miss</td>
-                            <td><span class="preview-placeholder"></span></td>
-                        </tr>
-                        <tr>
-                            <td>09/30/2026 4:09 pm</td>
-                            <td>Mesa</td>
-                            <td>Close Pass</td>
-                            <td><span class="preview-placeholder"></span></td>
-                        </tr>
-                        <tr>
-                            <td>09/30/2026 3:22 pm</td>
-                            <td>Gilbert</td>
-                            <td>Other</td>
+                        <tr th:each="incident : ${incidents}">
+                            <td th:text="${#temporals.format(incident.createdTime, 'MM/dd/yyyy h:mm a')}">09/30/2026 4:44 PM</td>
+                            <td th:text="${#numbers.formatDecimal(incident.latitude, 1, 4)} + ', ' + ${#numbers.formatDecimal(incident.longitude, 1, 4)}">33.4310, -111.9370</td>
+                            <td th:text="${incident.vehicleColor} + ' ' + ${incident.vehicleYear} + ' ' + ${incident.vehicleMake} + ' ' + ${incident.vehicleModel}">Silver 2019 Toyota Camry</td>
+                            <td th:text="${incident.injurySeverity}">Minor</td>
                             <td><span class="preview-placeholder"></span></td>
                         </tr>
                     </tbody>

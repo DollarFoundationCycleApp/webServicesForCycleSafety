@@ -2,6 +2,7 @@ package Server.WebPage;
 
 import Server.Model.Incident;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -43,7 +44,12 @@ public class WebController {
     public String login() { return "loginView"; }
 
     @GetMapping({"/dashboard"})
-    public String dashboard() { return "dashboardView"; }
+    public String dashboard(Model model) {
+        model.addAttribute("incidents", SAMPLE_INCIDENTS.stream()
+                .sorted(Comparator.comparing(Incident::createdTime).reversed())
+                .toList());
+        return "dashboardView";
+    }
 
     @GetMapping({"/heatmap"})
     public String heatmap(Model model) {
