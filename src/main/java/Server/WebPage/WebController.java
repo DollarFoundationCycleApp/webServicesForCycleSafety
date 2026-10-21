@@ -197,6 +197,13 @@ public class WebController {
         }
         return "reportsView"; }
 
+    @GetMapping({"/incidents"})
+    public String incidents(@CookieValue(value = "SESSION", required = false) String session) {
+        if (!AuthenticationController.isValidSession(session)) {
+            return "redirect:/login";
+        }
+        return "myIncidentsView"; }
+
     @GetMapping({"/settings"})
     public String settings(@CookieValue(value = "SESSION", required = false) String session) { 
         if (!AuthenticationController.isValidSession(session)) {

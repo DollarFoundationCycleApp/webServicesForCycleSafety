@@ -45,6 +45,7 @@
         <section class="panel-row">
             <div class="panel">
                 <div class="panel-title">Recent Incidents</div>
+                <div class="table-scroll" id="recent-incidents-scroll">
                 <table>
                     <thead>
                         <tr>
@@ -65,6 +66,7 @@
                         </tr>
                     </tbody>
                 </table>
+                </div>
             </div>
         
             <div class="panel">
@@ -79,6 +81,15 @@
                 incident.addEventListener("click", function () {
                     window.location.href = this.dataset.href;
                 });
+            }
+
+            // Show the 5 latest incidents; the rest scroll
+            const VISIBLE_ROWS = 5;
+            const incidentScroll = document.getElementById('recent-incidents-scroll');
+            if (incidentRows.length > VISIBLE_ROWS) {
+                const lastVisible = incidentRows[VISIBLE_ROWS - 1];
+                incidentScroll.style.maxHeight =
+                        (lastVisible.getBoundingClientRect().bottom - incidentScroll.getBoundingClientRect().top) + 'px';
             }
         </script>
     </th:block>

@@ -353,6 +353,16 @@ th {
     background-color: #fafafa;
 }
 
+/* Scrollable table, height set in page script */
+.table-scroll {
+    overflow-y: auto;
+}
+
+.table-scroll thead th {
+    position: sticky;
+    top: 0;
+}
+
 .preview-placeholder {
     display: inline-block;
     width: 50px;
