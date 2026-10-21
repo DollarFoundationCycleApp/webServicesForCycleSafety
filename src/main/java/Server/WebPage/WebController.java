@@ -14,6 +14,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
 
 import Server.Controller.AuthenticationController;
@@ -198,10 +199,24 @@ public class WebController {
         return "reportsView"; }
 
     @GetMapping({"/incidents"})
-    public String incidents(@CookieValue(value = "SESSION", required = false) String session) {
+    public String incidents(@CookieValue(value = "SESSION", required = false) String session,
+                @RequestParam(required = false) String id, Model model) {
         if (!AuthenticationController.isValidSession(session)) {
             return "redirect:/login";
         }
+
+        List<Incident> incidents = SAMPLE_INCIDENTS.stream()
+                .sorted(Comparator.comparing(Incident::createdTime).reversed())
+                .toList();
+
+        // Most recent incident unless one was picked from the dropdown
+        Incident incident = incidents.stream()
+                .filter(i -> i.incidentId().equals(id))
+                .findFirst()
+                .orElse(incidents.get(0));
+
+        model.addAttribute("incidents", incidents);
+        model.addAttribute("incident", incident);
         return "myIncidentsView"; }
 
     @GetMapping({"/settings"})

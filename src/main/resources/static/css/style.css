@@ -363,6 +363,28 @@ th {
     top: 0;
 }
 
+/* Fixed column size */
+.detail-table {
+    table-layout: fixed;
+}
+
+.detail-table th {
+    width: 320px;
+}
+
+.detail-table td {
+    overflow-wrap: anywhere;
+}
+
+/* My Incidents dropdown */
+.incident-picker {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    font-size: 0.85rem;
+}
+
 .preview-placeholder {
     display: inline-block;
     width: 50px;
