@@ -5,31 +5,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title text="'Cycle Safety Server - ' + ${title}">Cycle Saftey Server</title>
-    <link href="css/style.css" rel="stylesheet"/>
+    <link th:href="@{/css/style.css}" rel="stylesheet"/>
 </head>
 <body>
 <div class="app-layout">
     <aside class="sidebar">
         <div class="sidebar-top">
             <div class="sidebar-brand">
-                <image class="icon" src="icons/bike.svg" alt=""></image>
+                <image class="icon" th:src="@{/icons/bike.svg}" alt=""></image>
                 <span>Cycle Safety Server</span>
             </div>
             <nav class="nav-list">
                 <a class="nav-row" th:classappend="${active == 'dashboard'} ? 'selected'" th:href="@{/dashboard}">
-                    <image class="icon" src="icons/home.svg" alt=""></image>
+                    <image class="icon" th:src="@{/icons/home.svg}" alt=""></image>
                     <span>Dashboard</span>
                 </a>
                 <a class="nav-row" th:classappend="${active == 'heatmap'} ? 'selected'" th:href="@{/heatmap}">
-                    <image class="icon" src="icons/map.svg" alt=""></image>
+                    <image class="icon" th:src="@{/icons/map.svg}" alt=""></image>
                     <span>Heatmap</span>
                 </a>
                 <a class="nav-row" th:classappend="${active == 'reports'} ? 'selected'" th:href="@{/reports}">
-                    <image class="icon" src="icons/view-list.svg" alt=""></image>
+                    <image class="icon" th:src="@{/icons/view-list.svg}" alt=""></image>
                     <span>Reports</span>
                 </a>
                 <a class="nav-row" th:classappend="${active == 'settings'} ? 'selected'" th:href="@{/settings}">
-                    <image class="icon" src="icons/cog.svg" alt=""></image>
+                    <image class="icon" th:src="@{/icons/cog.svg}" alt=""></image>
                     <span>Settings</span>
                 </a>
             </nav>
@@ -37,14 +37,14 @@
 
         <div class="sidebar-bottom">
             <div class="profile-row">
-                <image class="icon" src="icons/card-account-details.svg" alt=""></image>
+                <image class="icon" th:src="@{/icons/card-account-details.svg}" alt=""></image>
                 <div class="profile-text">
                     <span class="name">Rob Dollar</span>
                     <span class="role">Administrator</span>
                 </div>
             </div>
             <button class="logout-row" id="logout-button" type="button">
-                <image class="icon" src="icons/logout.svg" alt=""></image>
+                <image class="icon" th:src="@{/icons/logout.svg}" alt=""></image>
                 <span>Logout</span>
             </button>
         </div>
@@ -59,7 +59,7 @@
             <div class="date-range">
                 <span id="date-range-text">09/01/26 - 09/30/26</span>
                 <button type="button" class="calendar-button" id="calendar-button" aria-label="Open calendar" aria-expanded="false">
-                    <image class="icon" src="icons/calendar-month.svg" alt=""></image>
+                    <image class="icon" th:src="@{/icons/calendar-month.svg}" alt=""></image>
                 </button>
                 <div class="calendar-popup" id="calendar-popup" hidden>
                     <div class="calendar-header">
@@ -85,8 +85,8 @@
     </main>
 </div>
 
-<script type="text/javascript" src="js/calendar.js"></script>
-<script type="text/javascript" src="js/logout.js"></script>
+<script type="text/javascript" th:src="@{/js/calendar.js}"></script>
+<script type="text/javascript" th:src="@{/js/logout.js}"></script>
 
 </body>
 </html>

@@ -63,23 +63,29 @@
         if (incident.driverPresent) {
             driverPresent = 'Yes';
         }
-        var rows = [
-            ['Reported', incident.createdTime],
-            ['Location', incident.latitude.toFixed(4) + ', ' + incident.longitude.toFixed(4)],
-            ['Injury severity', incident.injurySeverity],
-            ['License plate', incident.licensePlate],
-            ['Vehicle', incident.vehicleYear + ' ' + incident.vehicleMake + ' ' + incident.vehicleModel],
-            ['Vehicle color', incident.vehicleColor],
-            ['Driver present', driverPresent],
-            ['Driver information', incident.driverInformation || 'None given'],
-            ['Comment', incident.extraComment || 'None'],
-            ['Image ID', incident.imageId]
-        ];
+        var rows = []
+        rows.push(['Reported', incident.createdTime]);
+        rows.push(['Location', incident.latitude.toFixed(4) + ', ' + incident.longitude.toFixed(4)]);
+        rows.push(['Injury severity', incident.injurySeverity]);
+
+        if (!incident.hideInfo) {
+            rows.push(['License plate', incident.licensePlate]);
+        }
+        rows.push(['Vehicle', incident.vehicleYear + ' ' + incident.vehicleMake + ' ' + incident.vehicleModel]);
+        rows.push(['Vehicle color', incident.vehicleColor]);
+        rows.push(['Driver present', driverPresent]);
+         if (!incident.hideInfo) {
+            rows.push(['Driver information', incident.driverInformation || 'None given']);
+            rows.push(['Comment', incident.extraComment || 'None']);
+         }
+        rows.push(['Image ID', incident.imageId]);
+        
 
         var content = document.createElement('div');
-        var title = document.createElement('div');
+        var title = document.createElement('a');
         title.className = 'incident-popup-title';
         title.textContent = 'Incident';
+        title.href = "/incident/" + incident.incidentId;
         content.appendChild(title);
 
         var list = document.createElement('dl');
