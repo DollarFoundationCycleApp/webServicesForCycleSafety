@@ -49,7 +49,7 @@ public class DatabaseCommunicationContext {
 
     private String getJdbcUrl() {
         return "jdbc:mysql://" + dbHost + ":" + dbPort + "/" + dbName
-                + "?useSSL=false&serverTimezone=UTC";
+                + "?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true";
     }
 
     /**

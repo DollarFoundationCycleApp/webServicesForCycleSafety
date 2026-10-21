@@ -33,7 +33,7 @@ public class ServerStart {
             @Value("${db.port:3306}") int port,
             @Value("${db.name:cyclenessafety_db}") String name,
             @Value("${db.username:root}") String user,
-            @Value("${db.password:}") String password) {
+            @Value("${db.password:root}") String password) {
         return new DatabaseCommunicationContext(host, port, name, user, password);
     }
 
