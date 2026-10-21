@@ -16,6 +16,7 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import Server.App.AppToServerHandler;
+import Server.Model.DatabaseCommunicationContext;
 
 // Spring Boot Automatically Starts the web server
 @SpringBootApplication
@@ -25,10 +26,22 @@ public class ServerStart {
         SpringApplication.run(ServerStart.class, args);
     }
 
+    // Database connection context built from application.properties
+    @Bean
+    DatabaseCommunicationContext databaseCommunicationContext(
+            @Value("${db.host:localhost}") String host,
+            @Value("${db.port:3306}") int port,
+            @Value("${db.name:cyclenessafety_db}") String name,
+            @Value("${db.username:root}") String user,
+            @Value("${db.password:}") String password) {
+        return new DatabaseCommunicationContext(host, port, name, user, password);
+    }
+
     // Start the app server in a separate thread
     @Bean
-    CommandLineRunner appServer(@Value("${app.port:8080}") int appPort) {
-        return args -> new Thread(() -> startAppServer(appPort)).start();
+    CommandLineRunner appServer(@Value("${app.port:8080}") int appPort,
+                                DatabaseCommunicationContext db) {
+        return args -> new Thread(() -> startAppServer(appPort, db)).start();
     }
 
     @Bean
@@ -50,7 +63,7 @@ public class ServerStart {
     }
 
     // Start the app server in a separate thread
-    private static void startAppServer(int appPort) {
+    private static void startAppServer(int appPort, DatabaseCommunicationContext db) {
         try (ServerSocket appServerSocket = new ServerSocket(appPort)) {
             System.out.println("App server started on port " + appPort);
             System.out.println("Waiting for app clients to connect...");
@@ -63,7 +76,7 @@ public class ServerStart {
                 System.out.println("App " + id + " connected from " +
                     appSocket.getInetAddress().getHostAddress());
 
-                new Thread(() -> processAppConnection(appSocket, id)).start();
+                new Thread(() -> processAppConnection(appSocket, id, db)).start();
             }
         } catch (IOException e) {
             System.err.println("Error starting app server: " + e.getMessage());
@@ -71,11 +84,12 @@ public class ServerStart {
     }
 
     // Proccess the connection from the app client
-    private static void processAppConnection(Socket clientSocket, int clientID) {
+    private static void processAppConnection(Socket clientSocket, int clientID,
+                                             DatabaseCommunicationContext db) {
         try (InputStream in = clientSocket.getInputStream();
             OutputStream out = clientSocket.getOutputStream()) {
 
-            AppToServerHandler.handleAppToServer(in, out, clientID);
+            AppToServerHandler.handleAppToServer(in, out, clientID, db);
 
         } catch (IOException e) {
             System.err.println("Error processing connection from client " + clientID + ": " + e.getMessage());
