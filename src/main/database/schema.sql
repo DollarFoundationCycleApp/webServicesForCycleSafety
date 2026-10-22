@@ -1,6 +1,7 @@
 -- Cycle Safety database schema
 -- Incident information and incident images are stored in two separate tables
--- linked by device_event_id.
+-- linked by incident_id. A device_event_id is only unique per user, so the
+-- incident_id (server-assigned) is the reliable link between the tables.
 
 CREATE DATABASE IF NOT EXISTS cyclenessafety_db
     CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -10,7 +11,7 @@ USE cyclenessafety_db;
 -- Incident Information Table
 CREATE TABLE IF NOT EXISTS incidents (
     incident_id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    device_event_id INT UNSIGNED UNIQUE NOT NULL,  -- Links to incident images
+    device_event_id INT UNSIGNED NOT NULL,          -- Original event_id from embedded board
     user_id VARCHAR(255) NOT NULL,                  -- ID of the reporting user
     timestamp_ms BIGINT NOT NULL,                   -- Incident timestamp (UTC)
     latitude DECIMAL(10,7),                         -- GPS coordinates from mobile app
@@ -23,22 +24,23 @@ CREATE TABLE IF NOT EXISTS incidents (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_device_event_id (device_event_id),
     INDEX idx_user_id (user_id),
-    INDEX idx_timestamp_ms (timestamp_ms)
+    INDEX idx_timestamp_ms (timestamp_ms),
+    UNIQUE KEY uq_device_event_user (device_event_id, user_id)
 );
 
 -- Incident Image Table (stores binary image data separately)
 CREATE TABLE IF NOT EXISTS incident_photos (
     photo_id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    device_event_id INT UNSIGNED NOT NULL,           -- Foreign key linking to incidents table
+    incident_id BIGINT NOT NULL,                     -- Foreign key linking to incidents table
     image_index INT UNSIGNED NOT NULL,               -- Zero-based index within event
     format VARCHAR(50) NOT NULL DEFAULT 'JPEG',      -- e.g., "JPEG", "PNG"
     image_data MEDIUMBLOB NOT NULL,                  -- Binary image payload
     contains_sensitive_data TINYINT(1) DEFAULT 0 NOT NULL, -- Flagged if pending anonymization
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (device_event_id) REFERENCES incidents(device_event_id)
+    FOREIGN KEY (incident_id) REFERENCES incidents(incident_id)
         ON DELETE CASCADE ON UPDATE CASCADE,
-    INDEX idx_device_event_id_image_index (device_event_id, image_index),
+    INDEX idx_incident_id_image_index (incident_id, image_index),
     INDEX idx_format (format),
     INDEX idx_sensitive_data (contains_sensitive_data)
 );
@@ -46,7 +48,7 @@ CREATE TABLE IF NOT EXISTS incident_photos (
 -- Offender Vehicle Table (for repeat offender analytics)
 CREATE TABLE IF NOT EXISTS offender_vehicles (
     vehicle_id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    device_event_id INT UNSIGNED UNIQUE NOT NULL,    -- Links to incident that reported this vehicle
+    incident_id BIGINT UNIQUE NOT NULL,               -- Links to incident that reported this vehicle
     license_plate VARCHAR(50),                        -- Raw or normalized license plate string
     state_or_region VARCHAR(100),                     -- Vehicle jurisdiction
     vehicle_make VARCHAR(100),                       -- Vehicle make
@@ -54,7 +56,7 @@ CREATE TABLE IF NOT EXISTS offender_vehicles (
     vehicle_color VARCHAR(100),                      -- Vehicle color
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (device_event_id) REFERENCES incidents(device_event_id)
+    FOREIGN KEY (incident_id) REFERENCES incidents(incident_id)
         ON DELETE CASCADE ON UPDATE CASCADE,
     INDEX idx_license_plate (license_plate),
     INDEX idx_state_or_region (state_or_region)
