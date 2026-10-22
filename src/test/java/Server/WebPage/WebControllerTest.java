@@ -18,7 +18,7 @@ public class WebControllerTest {
 
         String session = AuthenticationController.authenticateUser("admin", "password");
 
-        String view = new WebController().heatmap(session, model);
+        String view = new WebController(null).heatmap(session, model);
 
         assertEquals("heatmapView", view);
         assertTrue(model.containsAttribute("mapStyleUrl"));

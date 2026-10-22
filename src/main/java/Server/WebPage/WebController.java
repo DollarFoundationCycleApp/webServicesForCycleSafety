@@ -1,23 +1,33 @@
 package Server.WebPage;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
 
 import Server.Controller.AuthenticationController;
+import Server.Model.DatabaseCommunicationContext;
 import Server.Model.Incident;
 
 @Controller
@@ -122,8 +132,65 @@ public class WebController {
                     "Volkswagen", "Jetta", "Black", 2014,
                     LocalDateTime.of(2026, 9, 29, 16, 0), false));
 
+    private final DatabaseCommunicationContext db;
+
+    public WebController(DatabaseCommunicationContext db) {
+        this.db = db;
+    }
+
+    /**
+     * Merge the sample incidents with those stored in the database. Database
+     * incidents replace any sample sharing the same id and add new ones, so the
+     * pages gradually fill out with real data as reports arrive. The ids that
+     * came from the database are tracked so they can be managed (deleted).
+     */
+    private IncidentData loadIncidentData() {
+        Map<String, Incident> merged = new LinkedHashMap<>();
+        for (Incident sample : SAMPLE_INCIDENTS) {
+            merged.put(sample.incidentId(), sample);
+        }
+
+        Set<String> databaseIds = new HashSet<>();
+        if (db != null) {
+            for (Map<String, Object> row : db.getAllIncidents(500, 0)) {
+                Incident incident = toIncident(row);
+                merged.put(incident.incidentId(), incident);
+                databaseIds.add(incident.incidentId());
+            }
+        }
+        return new IncidentData(new ArrayList<>(merged.values()), databaseIds);
+    }
+
+    private record IncidentData(List<Incident> incidents, Set<String> databaseIds) {
+    }
+
+    private static Incident toIncident(Map<String, Object> row) {
+        long incidentId = ((Number) row.get("incident_id")).longValue();
+        long timestampMs = ((Number) row.get("timestamp_ms")).longValue();
+        return new Incident(
+                String.valueOf(incidentId),
+                ((Number) row.get("latitude")).doubleValue(),
+                ((Number) row.get("longitude")).doubleValue(),
+                text(row.get("license_plate")),
+                "incident-" + incidentId,
+                "Unknown",
+                false,
+                "",
+                "",
+                text(row.get("vehicle_make")),
+                text(row.get("vehicle_model")),
+                text(row.get("vehicle_color")),
+                0,
+                LocalDateTime.ofInstant(Instant.ofEpochMilli(timestampMs), ZoneOffset.UTC),
+                Boolean.TRUE.equals(row.get("is_anonymized")));
+    }
+
+    private static String text(Object value) {
+        return value == null ? "" : value.toString();
+    }
+
     @GetMapping({"/", "/login"})
-    public String login(@CookieValue(value = "SESSION", required = false) String session) { 
+    public String login(@CookieValue(value = "SESSION", required = false) String session) {
         if (AuthenticationController.isValidSession(session)) {
             return "redirect:/dashboard";
         }
@@ -134,7 +201,7 @@ public class WebController {
         if (!AuthenticationController.isValidSession(session)) {
             return "redirect:/login";
         }
-        model.addAttribute("incidents", SAMPLE_INCIDENTS.stream()
+        model.addAttribute("incidents", loadIncidentData().incidents().stream()
                 .sorted(Comparator.comparing(Incident::createdTime).reversed())
                 .toList());
         return "dashboardView";
@@ -150,7 +217,7 @@ public class WebController {
         model.addAttribute("mapCenterLon", mapCenterLon);
         model.addAttribute("mapZoom", mapZoom);
         // Plain values only, so they serialize cleanly into the page script
-        model.addAttribute("incidents", SAMPLE_INCIDENTS.stream()
+        model.addAttribute("incidents", loadIncidentData().incidents().stream()
                 .map(incident -> {Map<String, Object> fields = new HashMap<>();
                         fields.put("incidentId", incident.incidentId());
                         fields.put("latitude", incident.latitude());
@@ -182,13 +249,52 @@ public class WebController {
             return "redirect:/login";
         }
 
-        Incident incident = SAMPLE_INCIDENTS.stream()
+        Incident incident = loadIncidentData().incidents().stream()
                 .filter(i -> id.equals(i.incidentId()))
                 .findFirst()
                 .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         model.addAttribute("incident", Incident.hideInfo(incident));
         return "incidentView";
+    }
+
+    /**
+     * Serve the photo stored in the database for a database incident. The
+     * database incidents use imageId "incident-{incidentId}", so this mapping
+     * lines up with the existing image tags. Missing photos return 404 and the
+     * pages fall back to the placeholder image.
+     */
+    @GetMapping({"/Images/incident-{id}"})
+    public ResponseEntity<byte[]> incidentPhoto(@CookieValue(value = "SESSION", required = false) String session,
+                @PathVariable long id) {
+        if (!AuthenticationController.isValidSession(session) || db == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        List<Map<String, Object>> photos = db.getIncidentPhotos(id);
+        if (photos.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        byte[] photoData = (byte[]) photos.get(0).get("photo_data");
+        if (photoData == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok()
+                .contentType(imageMediaType(text(photos.get(0).get("format"))))
+                .body(photoData);
+    }
+
+    private static MediaType imageMediaType(String format) {
+        if (!format.isEmpty()) {
+            try {
+                return MediaType.parseMediaType("image/" + format.toLowerCase());
+            } catch (IllegalArgumentException ignored) {
+                // fall through to the generic type
+            }
+        }
+        return MediaType.APPLICATION_OCTET_STREAM;
     }
 
     @GetMapping({"/reports"})
@@ -205,7 +311,8 @@ public class WebController {
             return "redirect:/login";
         }
 
-        List<Incident> incidents = SAMPLE_INCIDENTS.stream()
+        IncidentData data = loadIncidentData();
+        List<Incident> incidents = data.incidents().stream()
                 .sorted(Comparator.comparing(Incident::createdTime).reversed())
                 .toList();
 
@@ -217,7 +324,23 @@ public class WebController {
 
         model.addAttribute("incidents", incidents);
         model.addAttribute("incident", incident);
+        model.addAttribute("databaseIncidentIds", data.databaseIds());
         return "myIncidentsView"; }
+
+    @PostMapping({"/incidents/{id}/delete"})
+    public String deleteIncident(@CookieValue(value = "SESSION", required = false) String session,
+                @PathVariable String id) {
+        if (!AuthenticationController.isValidSession(session)) {
+            return "redirect:/login";
+        }
+        if (db != null) {
+            try {
+                db.deleteIncident(Long.parseLong(id));
+            } catch (NumberFormatException e) {
+                // Sample incidents use non-numeric ids and have nothing to delete
+            }
+        }
+        return "redirect:/incidents"; }
 
     @GetMapping({"/settings"})
     public String settings(@CookieValue(value = "SESSION", required = false) String session) { 

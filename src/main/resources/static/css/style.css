@@ -385,6 +385,22 @@ th {
     font-size: 0.85rem;
 }
 
+/* Delete button for incidents stored in the database */
+.delete-incident-button {
+    background-color: #d73027;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.delete-incident-button:hover {
+    background-color: #a82520;
+}
+
 .preview-placeholder {
     display: inline-block;
     width: 50px;

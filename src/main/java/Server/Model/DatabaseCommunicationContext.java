@@ -22,7 +22,8 @@ import CycleSafety.Server.SCPBV020.OffenderVehicle;
  *
  * Incident information and incident images live in two separate tables
  * ({@code incidents} and {@code incident_photos}) that are linked by
- * {@code device_event_id}.
+ * {@code incident_id}. A {@code device_event_id} is only unique per user, so
+ * the server-assigned {@code incident_id} is the reliable link.
  */
 public class DatabaseCommunicationContext {
 
@@ -54,7 +55,8 @@ public class DatabaseCommunicationContext {
 
     /**
      * Store an incident, its linked photos, and the optional offender vehicle in a
-     * single transaction. The photos are linked to the incident via device_event_id.
+     * single transaction. The photos and vehicle are linked to the incident via
+     * its server-assigned incident_id.
      *
      * @return the server-assigned incident_id on success, 0 on failure.
      */
@@ -63,9 +65,9 @@ public class DatabaseCommunicationContext {
         String incidentSql = "INSERT INTO incidents (device_event_id, user_id, timestamp_ms, "
                 + "latitude, longitude, accuracy_meters, distance_cm, time_offset_ms, is_anonymized) "
                 + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        String photoSql = "INSERT INTO incident_photos (device_event_id, image_index, format, "
+        String photoSql = "INSERT INTO incident_photos (incident_id, image_index, format, "
                 + "image_data, contains_sensitive_data) VALUES (?, ?, ?, ?, ?)";
-        String vehicleSql = "INSERT INTO offender_vehicles (device_event_id, license_plate, "
+        String vehicleSql = "INSERT INTO offender_vehicles (incident_id, license_plate, "
                 + "state_or_region, vehicle_make, vehicle_model, vehicle_color) "
                 + "VALUES (?, ?, ?, ?, ?, ?)";
 
@@ -101,7 +103,7 @@ public class DatabaseCommunicationContext {
             if (photos != null && !photos.isEmpty()) {
                 try (PreparedStatement ps = conn.prepareStatement(photoSql)) {
                     for (IncidentPhoto photo : photos) {
-                        ps.setInt(1, deviceEventId);
+                        ps.setLong(1, incidentId);
                         ps.setInt(2, photo.getImageIndex());
                         ps.setString(3, photo.getFormat());
                         ps.setBytes(4, photo.getImageData().toByteArray());
@@ -114,7 +116,7 @@ public class DatabaseCommunicationContext {
 
             if (vehicle != null && hasVehicleData(vehicle)) {
                 try (PreparedStatement ps = conn.prepareStatement(vehicleSql)) {
-                    ps.setInt(1, deviceEventId);
+                    ps.setLong(1, incidentId);
                     ps.setString(2, vehicle.getLicensePlate());
                     ps.setString(3, vehicle.getStateOrRegion());
                     ps.setString(4, vehicle.getVehicleMake());
@@ -136,17 +138,17 @@ public class DatabaseCommunicationContext {
     }
 
     /**
-     * Store a single incident photo linked to an incident by device_event_id.
+     * Store a single incident photo linked to an incident by incident_id.
      */
-    public boolean storeIncidentPhoto(int deviceEventId, int imageIndex, String format,
+    public boolean storeIncidentPhoto(long incidentId, int imageIndex, String format,
                                       byte[] imageData, boolean containsSensitiveData) {
-        String sql = "INSERT INTO incident_photos (device_event_id, image_index, format, "
+        String sql = "INSERT INTO incident_photos (incident_id, image_index, format, "
                 + "image_data, contains_sensitive_data) VALUES (?, ?, ?, ?, ?)";
 
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setInt(1, deviceEventId);
+            ps.setLong(1, incidentId);
             ps.setInt(2, imageIndex);
             ps.setString(3, format);
             ps.setBytes(4, imageData);
@@ -199,18 +201,85 @@ public class DatabaseCommunicationContext {
     }
 
     /**
-     * Get all incident images for a specific device event ID.
+     * Get incidents across all users, newest first, joined with any reported
+     * offender vehicle. Used by the web front end.
      */
-    public List<Map<String, Object>> getIncidentPhotos(int deviceEventId) {
-        List<Map<String, Object>> photos = new ArrayList<>();
+    public List<Map<String, Object>> getAllIncidents(int limit, int offset) {
+        List<Map<String, Object>> incidents = new ArrayList<>();
 
-        String sql = "SELECT image_index, format, image_data, contains_sensitive_data "
-                + "FROM incident_photos WHERE device_event_id = ? ORDER BY image_index";
+        String sql = "SELECT i.incident_id, i.device_event_id, i.timestamp_ms, i.latitude, "
+                + "i.longitude, i.accuracy_meters, i.distance_cm, i.time_offset_ms, i.is_anonymized, "
+                + "v.license_plate, v.state_or_region, v.vehicle_make, v.vehicle_model, v.vehicle_color "
+                + "FROM incidents i "
+                + "LEFT JOIN offender_vehicles v ON v.incident_id = i.incident_id "
+                + "ORDER BY i.timestamp_ms DESC LIMIT ? OFFSET ?";
 
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setInt(1, deviceEventId);
+            ps.setInt(1, limit);
+            ps.setInt(2, offset);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Map<String, Object> incident = new HashMap<>();
+                    incident.put("incident_id", rs.getLong("incident_id"));
+                    incident.put("device_event_id", rs.getInt("device_event_id"));
+                    incident.put("timestamp_ms", rs.getLong("timestamp_ms"));
+                    incident.put("latitude", rs.getDouble("latitude"));
+                    incident.put("longitude", rs.getDouble("longitude"));
+                    incident.put("accuracy_meters", rs.getFloat("accuracy_meters"));
+                    incident.put("distance_cm", rs.getInt("distance_cm"));
+                    incident.put("time_offset_ms", rs.getInt("time_offset_ms"));
+                    incident.put("is_anonymized", rs.getBoolean("is_anonymized"));
+                    incident.put("license_plate", rs.getString("license_plate"));
+                    incident.put("state_or_region", rs.getString("state_or_region"));
+                    incident.put("vehicle_make", rs.getString("vehicle_make"));
+                    incident.put("vehicle_model", rs.getString("vehicle_model"));
+                    incident.put("vehicle_color", rs.getString("vehicle_color"));
+                    incidents.add(incident);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error fetching all incidents: " + e.getMessage());
+        }
+
+        return incidents;
+    }
+
+    /**
+     * Delete an incident by its server-assigned incident_id. Linked photos and
+     * offender vehicle rows are removed by the foreign key cascade.
+     *
+     * @return true if a row was deleted, false otherwise.
+     */
+    public boolean deleteIncident(long incidentId) {
+        String sql = "DELETE FROM incidents WHERE incident_id = ?";
+
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setLong(1, incidentId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("Error deleting incident: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Get all incident images for a specific incident_id.
+     */
+    public List<Map<String, Object>> getIncidentPhotos(long incidentId) {
+        List<Map<String, Object>> photos = new ArrayList<>();
+
+        String sql = "SELECT image_index, format, image_data, contains_sensitive_data "
+                + "FROM incident_photos WHERE incident_id = ? ORDER BY image_index";
+
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setLong(1, incidentId);
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
