@@ -11,10 +11,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import CycleSafety.Server.SCPBV020.Incident;
-import CycleSafety.Server.SCPBV020.IncidentPhoto;
-import CycleSafety.Server.SCPBV020.Location;
-import CycleSafety.Server.SCPBV020.OffenderVehicle;
+import CycleSafety.Server.IBDCServerV021.Incident;
+import CycleSafety.Server.IBDCServerV021.IncidentPhoto;
+import CycleSafety.Server.IBDCServerV021.Location;
+import CycleSafety.Server.IBDCServerV021.OffenderVehicle;
 
 /**
  * DatabaseCommunicationContext provides JDBC operations for storing and retrieving

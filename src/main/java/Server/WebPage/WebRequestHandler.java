@@ -16,12 +16,12 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import CycleSafety.Server.SCPBV020.FetchIncidentsRequest;
-import CycleSafety.Server.SCPBV020.FetchOffenderHistoryRequest;
-import CycleSafety.Server.SCPBV020.FetchRepeatOffendersRequest;
-import CycleSafety.Server.SCPBV020.HeatmapDataRequest;
-import CycleSafety.Server.SCPBV020.ServerToWeb;
-import CycleSafety.Server.SCPBV020.WebToServer;
+import CycleSafety.Server.IBDCServerV021.FetchIncidentsRequest;
+import CycleSafety.Server.IBDCServerV021.FetchOffenderHistoryRequest;
+import CycleSafety.Server.IBDCServerV021.FetchRepeatOffendersRequest;
+import CycleSafety.Server.IBDCServerV021.HeatmapDataRequest;
+import CycleSafety.Server.IBDCServerV021.ServerToWeb;
+import CycleSafety.Server.IBDCServerV021.WebToServer;
 import Server.Controller.AuthenticationController;
 
 // Handles the different request endpoints from the web
@@ -79,7 +79,7 @@ public class WebRequestHandler {
 
     @GetMapping(value = "/api/incidents", produces = PROTO)
     public ServerToWeb incidents(
-        @RequestParam(defaultValue = "0") long userId,
+        @RequestParam(defaultValue = "") String userId,
         @RequestParam(defaultValue = "50") int limit,
         @RequestParam(defaultValue = "0") int offset,
         @RequestParam(defaultValue = "false") boolean isAnonymized) {
