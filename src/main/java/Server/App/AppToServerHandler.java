@@ -4,17 +4,17 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
-import CycleSafety.Server.IBDCServerV021.*;
-import CycleSafety.Server.IBDCServerV021.AppToServer;
-import CycleSafety.Server.IBDCServerV021.Incident;
-import CycleSafety.Server.IBDCServerV021.IncidentPhoto;
-import CycleSafety.Server.IBDCServerV021.OffenderVehicle;
-import CycleSafety.Server.IBDCServerV021.ServerErrorResponse;
-import CycleSafety.Server.IBDCServerV021.ServerToApp;
-import CycleSafety.Server.IBDCServerV021.SubmitIncidentRequest;
-import CycleSafety.Server.IBDCServerV021.SubmitIncidentResponse;
-import CycleSafety.Server.IBDCServerV021.UserAuthRequest;
-import CycleSafety.Server.IBDCServerV021.UserAuthResponse;
+import IBDCServer.Server.IBDCServerV021.*;
+import IBDCServer.Server.IBDCServerV021.AppToServer;
+import IBDCServer.Server.IBDCServerV021.Incident;
+import IBDCServer.Server.IBDCServerV021.IncidentPhoto;
+import IBDCServer.Server.IBDCServerV021.OffenderVehicle;
+import IBDCServer.Server.IBDCServerV021.ServerErrorResponse;
+import IBDCServer.Server.IBDCServerV021.ServerToApp;
+import IBDCServer.Server.IBDCServerV021.SubmitIncidentRequest;
+import IBDCServer.Server.IBDCServerV021.SubmitIncidentResponse;
+import IBDCServer.Server.IBDCServerV021.UserAuthRequest;
+import IBDCServer.Server.IBDCServerV021.UserAuthResponse;
 import Server.Controller.AuthenticationController;
 import Server.Model.DatabaseCommunicationContext;
 

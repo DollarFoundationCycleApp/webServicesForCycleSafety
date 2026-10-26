@@ -2,22 +2,22 @@ package Server.WebPage;
 
 import java.util.Collections;
 
-import CycleSafety.Server.IBDCServerV021.FetchIncidentsRequest;
-import CycleSafety.Server.IBDCServerV021.FetchIncidentsResponse;
-import CycleSafety.Server.IBDCServerV021.FetchOffenderHistoryRequest;
-import CycleSafety.Server.IBDCServerV021.FetchOffenderHistoryResponse;
-import CycleSafety.Server.IBDCServerV021.FetchRepeatOffendersRequest;
-import CycleSafety.Server.IBDCServerV021.FetchRepeatOffendersResponse;
-import CycleSafety.Server.IBDCServerV021.HeatmapDataRequest;
-import CycleSafety.Server.IBDCServerV021.HeatmapDataResponse;
-import CycleSafety.Server.IBDCServerV021.Incident;
-import CycleSafety.Server.IBDCServerV021.Location;
-import CycleSafety.Server.IBDCServerV021.RepeatOffenderSummary;
-import CycleSafety.Server.IBDCServerV021.ServerErrorResponse;
-import CycleSafety.Server.IBDCServerV021.ServerToWeb;
-import CycleSafety.Server.IBDCServerV021.UserAuthRequest;
-import CycleSafety.Server.IBDCServerV021.UserAuthResponse;
-import CycleSafety.Server.IBDCServerV021.WebToServer;
+import IBDCServer.Server.IBDCServerV021.FetchIncidentsRequest;
+import IBDCServer.Server.IBDCServerV021.FetchIncidentsResponse;
+import IBDCServer.Server.IBDCServerV021.FetchOffenderHistoryRequest;
+import IBDCServer.Server.IBDCServerV021.FetchOffenderHistoryResponse;
+import IBDCServer.Server.IBDCServerV021.FetchRepeatOffendersRequest;
+import IBDCServer.Server.IBDCServerV021.FetchRepeatOffendersResponse;
+import IBDCServer.Server.IBDCServerV021.HeatmapDataRequest;
+import IBDCServer.Server.IBDCServerV021.HeatmapDataResponse;
+import IBDCServer.Server.IBDCServerV021.Incident;
+import IBDCServer.Server.IBDCServerV021.Location;
+import IBDCServer.Server.IBDCServerV021.RepeatOffenderSummary;
+import IBDCServer.Server.IBDCServerV021.ServerErrorResponse;
+import IBDCServer.Server.IBDCServerV021.ServerToWeb;
+import IBDCServer.Server.IBDCServerV021.UserAuthRequest;
+import IBDCServer.Server.IBDCServerV021.UserAuthResponse;
+import IBDCServer.Server.IBDCServerV021.WebToServer;
 
 public class WebToServerHandler {
 

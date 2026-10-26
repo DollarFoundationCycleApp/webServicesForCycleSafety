@@ -1,12 +1,12 @@
--- Cycle Safety database schema
+-- IBDC Server database schema
 -- Incident information and incident images are stored in two separate tables
 -- linked by incident_id. A device_event_id is only unique per user, so the
 -- incident_id (server-assigned) is the reliable link between the tables.
 
-CREATE DATABASE IF NOT EXISTS cyclenessafety_db
+CREATE DATABASE IF NOT EXISTS IBDCServer_db
     CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
-USE cyclenessafety_db;
+USE IBDCServer_db;
 
 -- Incident Information Table
 CREATE TABLE IF NOT EXISTS incidents (

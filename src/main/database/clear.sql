@@ -1,4 +1,4 @@
-USE cyclenessafety_db;
+USE IBDCServer_db;
 
 -- 1. Temporarily disable foreign key checks
 SET FOREIGN_KEY_CHECKS = 0;

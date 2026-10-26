@@ -2,7 +2,7 @@
 
 syntax = "proto3";
 
-package CycleSafety.Server;
+package IBDCServer.Server;
 
 // Message sent from the Mobile Application to the Server.
 message AppToServer {

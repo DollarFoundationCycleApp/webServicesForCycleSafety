@@ -16,12 +16,12 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import CycleSafety.Server.IBDCServerV021.FetchIncidentsRequest;
-import CycleSafety.Server.IBDCServerV021.FetchOffenderHistoryRequest;
-import CycleSafety.Server.IBDCServerV021.FetchRepeatOffendersRequest;
-import CycleSafety.Server.IBDCServerV021.HeatmapDataRequest;
-import CycleSafety.Server.IBDCServerV021.ServerToWeb;
-import CycleSafety.Server.IBDCServerV021.WebToServer;
+import IBDCServer.Server.IBDCServerV021.FetchIncidentsRequest;
+import IBDCServer.Server.IBDCServerV021.FetchOffenderHistoryRequest;
+import IBDCServer.Server.IBDCServerV021.FetchRepeatOffendersRequest;
+import IBDCServer.Server.IBDCServerV021.HeatmapDataRequest;
+import IBDCServer.Server.IBDCServerV021.ServerToWeb;
+import IBDCServer.Server.IBDCServerV021.WebToServer;
 import Server.Controller.AuthenticationController;
 
 // Handles the different request endpoints from the web
