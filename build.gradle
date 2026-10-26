@@ -16,10 +16,14 @@ repositories {
 dependencies {
     // Spring Boot
     implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
     // Protocol Buffers
     implementation 'com.google.protobuf:protobuf-java:3.24.0'
+
+    // MySQL JDBC Driver
+    runtimeOnly 'com.mysql:mysql-connector-j:9.2.0'
 
     // Testing
     testImplementation 'org.junit.jupiter:junit-jupiter:5.9.3'

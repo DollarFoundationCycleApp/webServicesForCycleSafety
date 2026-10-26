@@ -1,6 +1,7 @@
 package Server.Controller;
 
 import java.security.MessageDigest;
+import java.nio.charset.StandardCharsets;
 import java.util.HexFormat;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -14,7 +15,7 @@ public class AuthenticationController {
     public static String hashPassword(String password) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hash = digest.digest(password.getBytes());
+            byte[] hash = digest.digest(password.getBytes(StandardCharsets.UTF_8));
             return HexFormat.of().formatHex(hash);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -23,6 +24,20 @@ public class AuthenticationController {
 
     public static String authenticateUser(String username, String password) {
         if (MOCK_USER.equals(username) && MOCK_PASSWORD_HASH.equals(hashPassword(password))) {
+            String sessionId = UUID.randomUUID().toString();
+            activeSessions.put(sessionId, username);
+            return sessionId;
+        }
+        return null;
+    }
+
+    public static String authenticateUserHash(String username, String passwordHash) {
+        if (passwordHash == null) {
+            return null;
+        }
+
+        String normalizedHash = passwordHash.trim().toLowerCase();
+        if (MOCK_USER.equals(username) && MOCK_PASSWORD_HASH.equals(normalizedHash)) {
             String sessionId = UUID.randomUUID().toString();
             activeSessions.put(sessionId, username);
             return sessionId;

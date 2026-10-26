@@ -1,0 +1,26 @@
+<html xmlns:th="http://www.thymeleaf.org"
+        th:replace="~{viewTemplate :: viewLayout('Heatmap', 'Map of Incident Locations', 'heatmap', ~{::content})}">
+<body>
+    <th:block th:fragment="content">
+        <!-- Page Specific content-->
+        <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet"/>
+        <div class="map-panel">
+            <div id="map"
+                 th:data-style-url="${mapStyleUrl}"
+                 th:data-center-lat="${mapCenterLat}"
+                 th:data-center-lon="${mapCenterLon}"
+                 th:data-zoom="${mapZoom}"></div>
+            <div class="map-status" id="map-status">Loading map...</div>
+            <button id="toggle-map-color" class="map-toggle" type="button" aria-pressed="true">
+                Show regular map
+            </button>
+        </div>
+        <script type="text/javascript" src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+        <script type="text/javascript" th:inline="javascript">
+            var incidents = /*[[${incidents}]]*/ [];
+        </script>
+        <script type="text/javascript" src="js/heatmap.js"></script>
+    </th:block>
+
+</body>
+</html>

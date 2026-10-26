@@ -15,11 +15,14 @@ import CycleSafety.Server.SCPBV020.SubmitIncidentRequest;
 import CycleSafety.Server.SCPBV020.SubmitIncidentResponse;
 import CycleSafety.Server.SCPBV020.UserAuthRequest;
 import CycleSafety.Server.SCPBV020.UserAuthResponse;
+import Server.Controller.AuthenticationController;
+import Server.Model.DatabaseCommunicationContext;
 
 public class AppToServerHandler {
 
     // Handles the different requests from the app client and returns the appropriate response
-    public static void handleAppToServer(InputStream in, OutputStream out, int clientID) {
+    public static void handleAppToServer(InputStream in, OutputStream out, int clientID,
+                                         DatabaseCommunicationContext db) {
         AppToServer request;
         try {        
             while ((request = AppToServer.parseDelimitedFrom(in)) != null) {
@@ -28,7 +31,7 @@ public class AppToServerHandler {
                 switch (request.getPayloadCase()) {
                     case SUBMIT_INCIDENT_REQUEST:
                         SubmitIncidentRequest submitRequest = request.getSubmitIncidentRequest();
-                        response = handleIncidentSubmission(submitRequest);
+                        response = handleIncidentSubmission(submitRequest, db);
                         break;
                     case USER_AUTH_REQUEST:
                         UserAuthRequest authRequest = request.getUserAuthRequest();
@@ -51,20 +54,27 @@ public class AppToServerHandler {
     }
 
     // Handles SubmitIncidentRequest and returns a SubmitIncidentResponse
-    private static ServerToApp.Builder handleIncidentSubmission(SubmitIncidentRequest request) {
+    private static ServerToApp.Builder handleIncidentSubmission(SubmitIncidentRequest request,
+                                                                DatabaseCommunicationContext db) {
         ServerToApp.Builder response = ServerToApp.newBuilder();
 
-        String UserID = request.getUserId();
+        String userId = request.getUserId();
         Incident incident = request.getIncident();
         List<IncidentPhoto> photos = request.getPhotosList();
-        OffenderVehicle offenderVehicle = request.getVehicleInfo();
+        OffenderVehicle offenderVehicle = request.hasVehicleInfo() ? request.getVehicleInfo() : null;
 
-        //TO_DO: Implement logic to process the incident
+        long serverIncidentId = 0;
+        if (db != null) {
+            serverIncidentId = db.storeIncident(userId, incident, photos, offenderVehicle);
+        }
 
+        boolean success = serverIncidentId > 0;
         response.setSubmitIncidentResponse(SubmitIncidentResponse.newBuilder()
-                .setSuccess(true)
-                .setServerIncidentId(1)
-                .setMessage("Incident submitted successfully")
+                .setSuccess(success)
+                .setServerIncidentId(serverIncidentId)
+                .setMessage(success
+                        ? "Incident submitted successfully"
+                        : "Failed to store incident")
                 .setTimestampMs(System.currentTimeMillis())
                 .build());
 
@@ -78,14 +88,13 @@ public class AppToServerHandler {
         String username = request.getUsernameOrEmail();
         String token = request.getAuthTokenOrHash();
 
-
-        //TO_DO: Implement logic to authenticate the user
+        String sessionToken = AuthenticationController.authenticateUserHash(username, token);
 
         response.setUserAuthResponse(UserAuthResponse.newBuilder()
-                .setAuthenticated(true)
+                .setAuthenticated(sessionToken != null)
                 .setUserId(username)
-                .setSessionToken("123")
-                .setIsAdmin(true));
+                .setSessionToken(sessionToken != null ? sessionToken : "")
+                .setIsAdmin(sessionToken != null));
 
         return response;
     }

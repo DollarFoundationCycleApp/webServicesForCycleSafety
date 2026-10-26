@@ -1,0 +1,97 @@
+<html xmlns:th="http://www.thymeleaf.org"
+        th:replace="~{viewTemplate :: viewLayout('Dashboard', 'Overview of Saftey Data', 'dashboard', ~{::content})}">
+<body>
+    <th:block th:fragment="content">
+        <!-- Page Specific content-->
+
+        <section class="summary-cards">
+            <div class="card">
+                <div class="card-label-row">
+                    <image class="icon" src="icons/camera.svg" alt=""></image>
+                    <span>Total Incidents</span>
+                </div>
+                <div class="card-value">1102</div>
+                <div class="card-trend down">&darr; 4% <span class="card-trend-note">vs last period</span></div>
+            </div>
+        
+            <div class="card">
+                <div class="card-label-row">
+                    <image class="icon" src="icons/alert.svg" alt=""></image>
+                    <span>High-Risk Areas</span>
+                </div>
+                <div class="card-value">27</div>
+                <div class="card-trend down">&darr; 6% <span class="card-trend-note">vs last period</span></div>
+            </div>
+        
+            <div class="card">
+                <div class="card-label-row">
+                    <image class="icon" src="icons/account-multiple.svg" alt=""></image>
+                    <span>Active Users</span>
+                </div>
+                <div class="card-value">407</div>
+                <div class="card-trend up">&uarr; 2% <span class="card-trend-note">vs last period</span></div>
+            </div>
+        
+            <div class="card">
+                <div class="card-label-row">
+                    <img class="icon" th:src="@{icons/web.svg}" alt="">
+                    <span>Users - Last 24hrs</span>
+                </div>
+                <div class="card-value">3145</div>
+                <div class="card-trend up">&uarr; 17% <span class="card-trend-note">vs last period</span></div>
+            </div>
+        </section>
+        
+        <section class="panel-row">
+            <div class="panel">
+                <div class="panel-title">Recent Incidents</div>
+                <div class="table-scroll" id="recent-incidents-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Location</th>
+                            <th>Vehicle</th>
+                            <th>Injury</th>
+                            <th>Preview</th>
+                        </tr>
+                    </thead> 
+                    <tbody>
+                        <tr th:each="incident : ${incidents}" th:data-href="@{/incident/{id}(id=${incident.incidentId})}" style="cursor: pointer">
+                            <td th:text="${#temporals.format(incident.createdTime, 'MM/dd/yyyy h:mm a')}">09/30/2026 4:44 PM</td>
+                            <td th:text="${#numbers.formatDecimal(incident.latitude, 1, 4)} + ', ' + ${#numbers.formatDecimal(incident.longitude, 1, 4)}">33.4310, -111.9370</td>
+                            <td th:text="${incident.vehicleColor} + ' ' + ${incident.vehicleYear} + ' ' + ${incident.vehicleMake} + ' ' + ${incident.vehicleModel}">Silver 2019 Toyota Camry</td>
+                            <td th:text="${incident.injurySeverity}">Minor</td>
+                            <td><span class="preview-placeholder"></span></td>
+                        </tr>
+                    </tbody>
+                </table>
+                </div>
+            </div>
+        
+            <div class="panel">
+                <div class="panel-title">Incident Types</div>
+                <div class="empty-panel-note">Chart area reserved</div>
+            </div>
+        </section>
+
+        <script>
+            const incidentRows = document.querySelectorAll('tr[data-href]')
+            for (const incident of incidentRows) {
+                incident.addEventListener("click", function () {
+                    window.location.href = this.dataset.href;
+                });
+            }
+
+            // Show the 5 latest incidents; the rest scroll
+            const VISIBLE_ROWS = 5;
+            const incidentScroll = document.getElementById('recent-incidents-scroll');
+            if (incidentRows.length > VISIBLE_ROWS) {
+                const lastVisible = incidentRows[VISIBLE_ROWS - 1];
+                incidentScroll.style.maxHeight =
+                        (lastVisible.getBoundingClientRect().bottom - incidentScroll.getBoundingClientRect().top) + 'px';
+            }
+        </script>
+    </th:block>
+</body>
+</html>
