@@ -1,4 +1,4 @@
-// Spider Cycle protobuff v0.2.1, 2026-09-27
+// IBDC server protobuff v0.2.1, 2026-09-27
 
 syntax = "proto3";
 
