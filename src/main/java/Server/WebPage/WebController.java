@@ -164,6 +164,19 @@ public class WebController {
     private record IncidentData(List<Incident> incidents, Set<String> databaseIds) {
     }
 
+    private static List<Incident> newestFirst(List<Incident> incidents) {
+        return incidents.stream()
+                .sorted(Comparator.comparing(Incident::createdTime).reversed())
+                .toList();
+    }
+
+    private static Incident findIncident(IncidentData data, String id) {
+        return data.incidents().stream()
+                .filter(i -> i.incidentId().equals(id))
+                .findFirst()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    }
+
     private static Incident toIncident(Map<String, Object> row) {
         long incidentId = ((Number) row.get("incident_id")).longValue();
         long timestampMs = ((Number) row.get("timestamp_ms")).longValue();
@@ -201,9 +214,7 @@ public class WebController {
         if (!AuthenticationController.isValidSession(session)) {
             return "redirect:/login";
         }
-        model.addAttribute("incidents", loadIncidentData().incidents().stream()
-                .sorted(Comparator.comparing(Incident::createdTime).reversed())
-                .toList());
+        model.addAttribute("incidents", newestFirst(loadIncidentData().incidents()));
         return "dashboardView";
     }
 
@@ -242,6 +253,30 @@ public class WebController {
         return "heatmapView";
     }
 
+    /**
+     * Send the picker's ?id= selection, or the most recent incident when none
+     * was picked, to its detail page. With no incidents the page shows an
+     * empty state instead.
+     */
+    @GetMapping({"/incident"})
+    public String incidents(@CookieValue(value = "SESSION", required = false) String session,
+                @RequestParam(required = false) String id, Model model) {
+        if (!AuthenticationController.isValidSession(session)) {
+            return "redirect:/login";
+        }
+
+        IncidentData data = loadIncidentData();
+        if (id != null) {
+            return "redirect:/incident/" + findIncident(data, id).incidentId();
+        }
+
+        List<Incident> incidents = newestFirst(data.incidents());
+        if (incidents.isEmpty()) {
+            model.addAttribute("incidents", incidents);
+            return "incidentView";
+        }
+        return "redirect:/incident/" + incidents.get(0).incidentId(); }
+
     @GetMapping({"/incident/{id}"})
     public String incident(@CookieValue(value = "SESSION", required = false) String session,
                 @PathVariable String id, Model model) {
@@ -249,14 +284,33 @@ public class WebController {
             return "redirect:/login";
         }
 
-        Incident incident = loadIncidentData().incidents().stream()
-                .filter(i -> id.equals(i.incidentId()))
-                .findFirst()
-                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        IncidentData data = loadIncidentData();
+        Incident incident = findIncident(data, id);
 
-        model.addAttribute("incident", Incident.hideInfo(incident));
+        // Private fields are masked for everyone but admins
+        boolean canSeePrivate = AuthenticationController.isAdminSession(session);
+
+        model.addAttribute("incidents", newestFirst(data.incidents()));
+        model.addAttribute("incident", canSeePrivate ? incident : Incident.hideInfo(incident));
+        model.addAttribute("canSeePrivate", canSeePrivate);
+        model.addAttribute("databaseIncidentIds", data.databaseIds());
         return "incidentView";
     }
+
+    @PostMapping({"/incident/{id}/delete"})
+    public String deleteIncident(@CookieValue(value = "SESSION", required = false) String session,
+                @PathVariable String id) {
+        if (!AuthenticationController.isValidSession(session)) {
+            return "redirect:/login";
+        }
+        if (db != null) {
+            try {
+                db.deleteIncident(Long.parseLong(id));
+            } catch (NumberFormatException e) {
+                // Sample incidents use non-numeric ids and have nothing to delete
+            }
+        }
+        return "redirect:/incident"; }
 
     /**
      * Serve the photo stored in the database for a database incident. The
@@ -303,44 +357,6 @@ public class WebController {
             return "redirect:/login";
         }
         return "reportsView"; }
-
-    @GetMapping({"/incidents"})
-    public String incidents(@CookieValue(value = "SESSION", required = false) String session,
-                @RequestParam(required = false) String id, Model model) {
-        if (!AuthenticationController.isValidSession(session)) {
-            return "redirect:/login";
-        }
-
-        IncidentData data = loadIncidentData();
-        List<Incident> incidents = data.incidents().stream()
-                .sorted(Comparator.comparing(Incident::createdTime).reversed())
-                .toList();
-
-        // Most recent incident unless one was picked from the dropdown
-        Incident incident = incidents.stream()
-                .filter(i -> i.incidentId().equals(id))
-                .findFirst()
-                .orElse(incidents.get(0));
-
-        model.addAttribute("incidents", incidents);
-        model.addAttribute("incident", incident);
-        model.addAttribute("databaseIncidentIds", data.databaseIds());
-        return "myIncidentsView"; }
-
-    @PostMapping({"/incidents/{id}/delete"})
-    public String deleteIncident(@CookieValue(value = "SESSION", required = false) String session,
-                @PathVariable String id) {
-        if (!AuthenticationController.isValidSession(session)) {
-            return "redirect:/login";
-        }
-        if (db != null) {
-            try {
-                db.deleteIncident(Long.parseLong(id));
-            } catch (NumberFormatException e) {
-                // Sample incidents use non-numeric ids and have nothing to delete
-            }
-        }
-        return "redirect:/incidents"; }
 
     @GetMapping({"/settings"})
     public String settings(@CookieValue(value = "SESSION", required = false) String session) { 
