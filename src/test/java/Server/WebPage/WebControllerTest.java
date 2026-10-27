@@ -27,4 +27,18 @@ public class WebControllerTest {
         assertTrue(model.containsAttribute("mapZoom"));
         assertTrue(model.containsAttribute("incidents"));
     }
+
+    /**
+     * The create account page is reachable while logged out and bounces
+     * authenticated users back to the dashboard.
+     */
+    @Test
+    public void registerShowsViewWhenLoggedOut() {
+        WebController controller = new WebController(null);
+
+        assertEquals("registerView", controller.register(null));
+
+        String session = AuthenticationController.authenticateUser("admin", "password");
+        assertEquals("redirect:/dashboard", controller.register(session));
+    }
 }

@@ -196,6 +196,13 @@ public class WebController {
         }
         return "loginView"; }
 
+    @GetMapping({"/register"})
+    public String register(@CookieValue(value = "SESSION", required = false) String session) {
+        if (AuthenticationController.isValidSession(session)) {
+            return "redirect:/dashboard";
+        }
+        return "registerView"; }
+
     @GetMapping({"/dashboard"})
     public String dashboard(@CookieValue(value = "SESSION", required = false) String session, Model model) {
         if (!AuthenticationController.isValidSession(session)) {
