@@ -401,6 +401,39 @@ th {
     background-color: #a82520;
 }
 
+.keyword-filter {
+    margin-bottom: 16px;
+    font-size: 0.85rem;
+}
+
+.keyword-filter-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 20%;
+    margin-top: 50px;
+    max-width: 100%;
+    padding: 0 12px;
+    border: 1px solid #d8d8d8;
+    border-radius: 4px;
+    background-color: #ffffff;
+}
+
+.keyword-filter-wrap:focus-within {
+    border-color: #ff6600;
+}
+
+.keyword-filter-wrap input {
+    flex: 1;
+    min-width: 0;
+    padding: 8px 0;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 0.85rem;
+    color: #333333;
+}
+
 .preview-placeholder {
     display: inline-block;
     width: 50px;

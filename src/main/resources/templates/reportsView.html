@@ -4,6 +4,13 @@
     <th:block th:fragment="content">
         <!-- Page Specific content-->
 
+        <div class="keyword-filter">
+            <div class="keyword-filter-wrap">
+                <input type="text" id="keyword" name="keyword" placeholder="Search by location or keyword" autocomplete="off">
+                <img class="icon" th:src="@{/icons/magnify.svg}" alt="">
+            </div>
+        </div>
+
     </th:block>
 </body>
 </html>
