@@ -14,7 +14,10 @@
         <div class="panel">
             <table class="detail-table">
                     <tr>
-                        <th style="width: fit-content; background-color: rgb(200, 200, 200);">Incident ID</th>
+                        <th style="width: 25px; background-color: rgb(200, 200, 200);">
+                            <input type="checkbox" id="all-incidents" value="No">
+                        </th>
+                        <th style="width: 8%; background-color: rgb(200, 200, 200);">Incident ID</th>
                         <th style="width: fit-content; background-color: rgb(200, 200, 200);">Date</th>
                         <th style="width: fit-content; background-color: rgb(200, 200, 200);">Location</th>
                         <th style="width: 20%; background-color: rgb(200, 200, 200);">Vehicle</th>
@@ -23,6 +26,9 @@
                         <th style="width: fit-content; background-color: rgb(200, 200, 200);">Imagae Preview</th>
                     </tr>
                     <tr th:each="incident : ${incidents}">
+                            <td>
+                            <input type="checkbox" th:id="|incident-${incident.incidentId}|" value="No">
+                            </td>
                             <td th:text="${incident.incidentId}">N/A</td>
                             <td th:text="${#temporals.format(incident.createdTime, 'MM/dd/yyyy h:mm a')}">N/A</td>
                             <td th:text="${#numbers.formatDecimal(incident.latitude, 1, 4)} + ', ' + ${#numbers.formatDecimal(incident.longitude, 1, 4)}">N/A</td>
