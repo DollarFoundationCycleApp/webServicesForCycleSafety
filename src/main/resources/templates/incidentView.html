@@ -9,12 +9,26 @@
         </div>
 
         <th:block th:if="${incident != null}">
-        <form class="incident-picker" th:action="@{/incident}" method="get">
-            <label for="incident-select">Incident</label>
-            <select id="incident-select" name="id" onchange="this.form.submit()">
-                <option th:each="i : ${incidents}" th:value="${i.incidentId}" th:selected="${i.incidentId == incident.incidentId}"
-                        th:text="${i.incidentId} + ' - ' + ${#temporals.format(i.createdTime, 'MM/dd/yyyy h:mm a')}">1 - 09/03/2026 8:15 AM</option>
-            </select>
+        <form class="incident-picker" th:action="@{/incident}" method="post">
+            <label for="incident-select" class="incident-picker-label">Incident</label>
+            <div class="incident-picker-select">
+                <select id="incident-select" name="id"
+                        onchange="window.location.href = '/incident/' + encodeURIComponent(this.value)">
+                    <option th:each="i : ${incidents}" th:value="${i.incidentId}" th:selected="${i.incidentId == incident.incidentId}"
+                            th:text="'#' + ${i.incidentId} + '  ·  ' + ${#temporals.format(i.createdTime, 'MMM d, yyyy h:mm a')}">#1 · Sep 3, 2026 8:15 AM</option>
+                </select>
+            </div>
+            <noscript><button type="submit" class="incident-picker-button">Go</button></noscript>
+
+            <div class="incident-picker-nav">
+                <a class="incident-picker-button" th:if="${newerIncidentId != null}"
+                        th:href="@{/incident/{id}(id=${newerIncidentId})}" title="Newer incident">&lsaquo; Newer</a>
+                <span class="incident-picker-button disabled" th:if="${newerIncidentId == null}">&lsaquo; Newer</span>
+                <span class="incident-picker-count" th:text="${incidentPosition} + ' of ' + ${#lists.size(incidents)}">1 of 1</span>
+                <a class="incident-picker-button" th:if="${olderIncidentId != null}"
+                        th:href="@{/incident/{id}(id=${olderIncidentId})}" title="Older incident">Older &rsaquo;</a>
+                <span class="incident-picker-button disabled" th:if="${olderIncidentId == null}">Older &rsaquo;</span>
+            </div>
         </form>
 
         <div class="panel">

@@ -254,28 +254,33 @@ public class WebController {
     }
 
     /**
-     * Send the picker's ?id= selection, or the most recent incident when none
-     * was picked, to its detail page. With no incidents the page shows an
-     * empty state instead.
+     * Send the most recent incident to its detail page. With no incidents the
+     * page shows an empty state instead.
      */
     @GetMapping({"/incident"})
-    public String incidents(@CookieValue(value = "SESSION", required = false) String session,
-                @RequestParam(required = false) String id, Model model) {
+    public String incidents(@CookieValue(value = "SESSION", required = false) String session, Model model) {
         if (!AuthenticationController.isValidSession(session)) {
             return "redirect:/login";
         }
 
-        IncidentData data = loadIncidentData();
-        if (id != null) {
-            return "redirect:/incident/" + findIncident(data, id).incidentId();
-        }
-
-        List<Incident> incidents = newestFirst(data.incidents());
+        List<Incident> incidents = newestFirst(loadIncidentData().incidents());
         if (incidents.isEmpty()) {
             model.addAttribute("incidents", incidents);
             return "incidentView";
         }
         return "redirect:/incident/" + incidents.get(0).incidentId(); }
+
+    /**
+     * The picker's no-script fallback posts the chosen id here, which is
+     * redirected to the incident's own path so only /incident/{id} is used.
+     */
+    @PostMapping({"/incident"})
+    public String pickIncident(@CookieValue(value = "SESSION", required = false) String session,
+                @RequestParam String id) {
+        if (!AuthenticationController.isValidSession(session)) {
+            return "redirect:/login";
+        }
+        return "redirect:/incident/" + findIncident(loadIncidentData(), id).incidentId(); }
 
     @GetMapping({"/incident/{id}"})
     public String incident(@CookieValue(value = "SESSION", required = false) String session,
@@ -290,7 +295,16 @@ public class WebController {
         // Private fields are masked for everyone but admins
         boolean canSeePrivate = AuthenticationController.isAdminSession(session);
 
-        model.addAttribute("incidents", newestFirst(data.incidents()));
+        List<Incident> incidents = newestFirst(data.incidents());
+        model.addAttribute("incidents", incidents);
+
+        // Neighbours in the newest-first list drive the picker's step buttons
+        int position = incidents.indexOf(incident);
+        model.addAttribute("incidentPosition", position + 1);
+        model.addAttribute("newerIncidentId", position > 0 ? incidents.get(position - 1).incidentId() : null);
+        model.addAttribute("olderIncidentId", position >= 0 && position < incidents.size() - 1
+                ? incidents.get(position + 1).incidentId() : null);
+
         model.addAttribute("incident", canSeePrivate ? incident : Incident.hideInfo(incident));
         model.addAttribute("canSeePrivate", canSeePrivate);
         model.addAttribute("databaseIncidentIds", data.databaseIds());
