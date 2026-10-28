@@ -298,10 +298,15 @@ public class WebController {
     }
 
     @GetMapping({"/reports"})
-    public String reports(@CookieValue(value = "SESSION", required = false) String session) { 
+    public String reports(@CookieValue(value = "SESSION", required = false) String session, Model model) { 
         if (!AuthenticationController.isValidSession(session)) {
             return "redirect:/login";
         }
+
+        model.addAttribute("incidents", loadIncidentData().incidents().stream()
+                .sorted(Comparator.comparing(Incident::createdTime).reversed())
+                .toList());
+                
         return "reportsView"; }
 
     @GetMapping({"/incidents"})
