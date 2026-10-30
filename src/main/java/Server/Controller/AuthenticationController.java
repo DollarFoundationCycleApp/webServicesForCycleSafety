@@ -75,22 +75,41 @@ public class AuthenticationController {
     }
 
     /**
-     * Demo-only credential check kept for the built-in account.
+     * Demo-only credential check kept for the built-in account. Web and app
+     * logins call the overload that takes a database.
      */
     public static String authenticateUser(String username, String password) {
-        if (MOCK_USER.equals(username) && MOCK_PASSWORD_HASH.equals(hashPassword(password))) {
-            return createSession(MOCK_USER, true);
-        }
-        return null;
+        return authenticateUser(null, username, password);
     }
 
-    public static String authenticateUserHash(String username, String passwordHash) {
-        if (passwordHash == null) {
+    /**
+     * Credential check used by the mobile app, which sends an already-hashed
+     * password (SHA-256 hex) instead of the plaintext.
+     *
+     * @return a session token on success, null when the credentials are wrong.
+     */
+    public static String authenticateUserHash(DatabaseCommunicationContext db, String usernameOrEmail,
+                                              String passwordHash) {
+        if (usernameOrEmail == null || passwordHash == null) {
             return null;
         }
 
+        String identifier = usernameOrEmail.trim();
         String normalizedHash = passwordHash.trim().toLowerCase();
-        if (MOCK_USER.equals(username) && MOCK_PASSWORD_HASH.equals(normalizedHash)) {
+
+        if (db != null) {
+            Map<String, Object> user = db.findUserByUsernameOrEmail(identifier);
+            if (user != null) {
+                String storedHash = String.valueOf(user.get("password_hash"));
+                if (!normalizedHash.equalsIgnoreCase(storedHash)) {
+                    return null;
+                }
+                return createSession(String.valueOf(user.get("user_id")),
+                        Boolean.TRUE.equals(user.get("is_admin")));
+            }
+        }
+
+        if (MOCK_USER.equals(identifier) && MOCK_PASSWORD_HASH.equals(normalizedHash)) {
             return createSession(MOCK_USER, true);
         }
         return null;
