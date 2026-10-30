@@ -526,6 +526,49 @@ th {
     color: #333333;
 }
 
+/* Reports Page Selector */
+.page-selector {
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+    margin-top: 12px;
+    font-size: 0.85rem;
+}
+
+.page-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 32px;
+    padding: 0 8px;
+    border: 1px solid #444444;
+    border-radius: 4px;
+    background-color: #ffffff;
+    color: #333333;
+}
+
+.page-button:hover:not(.active):not(.ellipsis):not(.disabled) {
+    background-color: #ffe3cc;
+}
+
+.page-button.active {
+    background-color: #ff6600;
+    border-color: #ff6600;
+    color: #ffffff;
+    font-weight: bold;
+}
+
+.page-button.ellipsis,
+.page-button.disabled {
+    pointer-events: none;
+}
+
+.page-button.disabled {
+    color: #aaaaaa;
+    border-color: #cccccc;
+}
+
 .preview-placeholder {
     display: inline-block;
     width: 50px;

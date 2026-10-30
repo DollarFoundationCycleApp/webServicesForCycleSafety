@@ -12,6 +12,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -364,16 +365,49 @@ public class WebController {
     }
 
     @GetMapping({"/reports"})
-    public String reports(@CookieValue(value = "SESSION", required = false) String session, Model model) { 
+    public String reports(@CookieValue(value = "SESSION", required = false) String session, 
+                        @RequestParam(defaultValue = "1") int pageNum, 
+                        @RequestParam(defaultValue = "10") int incidentsPerPage, Model model) { 
         if (!AuthenticationController.isValidSession(session)) {
             return "redirect:/login";
         }
+        if (incidentsPerPage < 1) incidentsPerPage = 10;
 
-        model.addAttribute("incidents", loadIncidentData().incidents().stream()
+        List<Incident> allIncidents = loadIncidentData().incidents().stream()
                 .sorted(Comparator.comparing(Incident::createdTime).reversed())
-                .toList());
-                
+                .toList();
+
+        int totalPages = (int) Math.ceil(allIncidents.size() / (double) incidentsPerPage);
+        int from = (Math.min(pageNum, totalPages) - 1) * incidentsPerPage;
+        int to = Math.min(from + incidentsPerPage, allIncidents.size());
+        
+        model.addAttribute("incidents", allIncidents.subList(from, to));
+        model.addAttribute("incidentsPerPage", incidentsPerPage);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("currentPage", Math.min(pageNum, totalPages));
+        model.addAttribute("pageButtons", pageButtons(Math.min(pageNum, totalPages), totalPages));
+
         return "reportsView"; }
+
+    private static List<Integer> pageButtons(int current, int total) {
+    TreeSet<Integer> pages = new TreeSet<>();
+    for (int p : new int[]{1, current - 1, current, current + 1, total}) {
+        if (p >= 1 && p <= total) {
+            pages.add(p);
+        }
+    }
+
+    List<Integer> buttons = new ArrayList<>();
+    int prev = 0;
+    for (int p : pages) {
+        if (p - prev > 1) {
+            buttons.add(-1);
+        }
+        buttons.add(p);
+        prev = p;
+    }
+    return buttons;
+}
 
     @GetMapping({"/settings"})
     public String settings(@CookieValue(value = "SESSION", required = false) String session) { 

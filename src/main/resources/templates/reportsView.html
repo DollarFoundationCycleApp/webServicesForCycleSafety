@@ -40,6 +40,21 @@
             </table>
         </div>
 
+        <nav class="page-selector" th:if="${totalPages gt 1}">
+            <a class="page-button" th:classappend="${currentPage == 1} ? 'disabled'"
+            th:href="@{/reports(pageNum=${currentPage - 1}, incidentsPerPage=${incidentsPerPage})}">&laquo;</a>
+
+            <th:block th:each="p : ${pageButtons}">
+                <span class="page-button ellipsis" th:if="${p == -1}">...</span>
+                <a class="page-button" th:unless="${p == -1}"
+                th:classappend="${p == currentPage} ? 'active'"
+                th:href="@{/reports(pageNum=${p}, incidentsPerPage=${incidentsPerPage})}" th:text="${p}">1</a>
+            </th:block>
+
+            <a class="page-button" th:classappend="${currentPage == totalPages} ? 'disabled'"
+            th:href="@{/reports(pageNum=${currentPage + 1}, incidentsPerPage=${incidentsPerPage})}">&raquo;</a>
+        </nav>
+
     </th:block>
 </body>
 </html>
