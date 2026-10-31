@@ -369,11 +369,31 @@ th {
 }
 
 .detail-table th {
-    width: 320px;
+    width: 130px;
 }
 
 .detail-table td {
     overflow-wrap: anywhere;
+}
+
+/* Incident photo beside its details, details fill the row when the photo is hidden */
+.incident-detail-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.incident-detail-row .panel {
+    flex: 1;
+    min-width: 0;
+}
+
+.incident-image {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 4px;
 }
 
 /* My Incidents dropdown */
@@ -529,6 +549,11 @@ a  {
 @media (max-width: 600px) {
     .app-layout {
         flex-direction: column;
+    }
+
+    .incident-detail-row {
+        flex-direction: column;
+        align-items: stretch;
     }
 
     .sidebar {
